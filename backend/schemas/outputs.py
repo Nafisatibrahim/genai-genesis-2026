@@ -52,6 +52,10 @@ class ReferralOutput(BaseModel):
     provider_type: ReferralProviderType
     reason: str
     timing: Optional[str] = None
+    discipline_explanation: Optional[str] = Field(
+        default=None,
+        description="1–2 sentences explaining why this type of care (physio vs chiro vs massage) for the user",
+    )
 
 
 # -----------------------------------------------------------------------------

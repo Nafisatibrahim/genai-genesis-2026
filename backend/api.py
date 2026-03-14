@@ -2,15 +2,23 @@
 FlexCare API: FastAPI app for Railway and local use.
 POST /assess: intake payload → pipeline result (assessment, safety, recovery or referral).
 GET /health: readiness check.
+GET /referral/providers: list providers by type (optional lat/lon for ranking).
+GET /referral/coverage: coverage copy + checklist for a discipline.
 """
 
 import os
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.schemas.intake import IntakePayload
 from backend.agents.pipeline import run_flexcare_pipeline
+from backend.referral_providers import (
+    get_providers,
+    get_coverage_for_discipline,
+    ReferralProviderType,
+)
 
 try:
     from dotenv import load_dotenv
@@ -49,6 +57,26 @@ async def assess(payload: IntakePayload):
         return result.model_dump()
     except Exception as e:
         raise HTTPException(status_code=500, detail="Pipeline failed")
+
+
+@app.get("/referral/providers")
+def referral_providers(
+    provider_type: ReferralProviderType,
+    lat: Optional[float] = None,
+    lon: Optional[float] = None,
+):
+    """
+    Return providers for the given referral type, ranked by distance (if lat/lon provided),
+    then direct bill, then languages. First result is marked recommended.
+    """
+    providers = get_providers(provider_type, lat=lat, lon=lon)
+    return {"providers": [p.model_dump() for p in providers]}
+
+
+@app.get("/referral/coverage")
+def referral_coverage(provider_type: ReferralProviderType):
+    """Return general coverage copy and checklist for the discipline (no plan-specific data)."""
+    return get_coverage_for_discipline(provider_type)
 
 
 def main():

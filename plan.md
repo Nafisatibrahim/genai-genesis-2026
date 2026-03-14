@@ -175,8 +175,26 @@ Step-by-step plan for building the AI Musculoskeletal Recovery Assistant (FlexCa
 
 ---
 
-## 10. Process
+## 10. Phase 8 — Referral flow (find provider & coverage)
 
-- **Order:** Phase 0 → 1 → 2 → 3 → 4; Phase 5 (RAG) and 6 (demo) in parallel once 2–4 are stable. **Phase 7 (exercise recording & posture feedback)** builds on Phase 4: after the user gets recovery actions, they can optionally record and get form feedback; implement 7.1–7.5 when 4 is stable.
+*Goal: When the pipeline returns a referral (see a specialist), help the user understand why that discipline, find a provider, and understand what their coverage may cover.*
+
+| Step | Task | Details |
+|------|------|---------|
+| 8.1 | Referral Agent: discipline_explanation | Add optional `discipline_explanation` (1–2 sentences) to `ReferralOutput`. Referral Agent returns it so the UI can show "Why this type of care?" without hardcoding. |
+| 8.2 | Provider model + manual list | Pydantic `Provider` model (id, name, clinic, provider_type, address, postal_code, lat, lon, phone, languages, accepts_direct_bill, availability). Manual list of example providers per type; expansion: directory API or DB. |
+| 8.3 | Provider list endpoint | `GET /referral/providers?provider_type=physio&lat=&lon=` (optional). Filter by type; rank by distance (if lat/lon), then direct_bill, then languages; mark first as recommended. |
+| 8.4 | Rank + recommended | Backend ranks providers; response includes `recommended: true` on one. UI shows "Recommended" badge and "More options." |
+| 8.5 | UI: referral block | When `result.referral` present and provider_type ≠ none: show reason, timing, discipline_explanation ("Why this type of care?"), then "Find a provider" (list from API) and "Understanding your coverage" (copy + checklist). |
+| 8.6 | Coverage copy + checklist | One source of truth (backend): short copy per discipline (e.g. "Many plans cover… physiotherapy…"); structured checklist ("1) Check your plan for [discipline]. 2) Note annual limit. 3) Ask if clinic direct bills."). `GET /referral/coverage?provider_type=physio` or include in provider response. Disclaimer: "Final coverage is determined by your insurer." |
+| 8.7 | (Optional) User location | "Use my location" or postal code so provider list is ranked by distance; expansion: insurer/benefits API for plan-specific coverage. |
+
+*Expansion:* Replace manual provider list with directory API; add insurer/plan-specific coverage when data source available.
+
+---
+
+## 11. Process
+
+- **Order:** Phase 0 → 1 → 2 → 3 → 4; Phase 5 (RAG) and 6 (demo) in parallel once 2–4 are stable. **Phase 7 (exercise recording & posture feedback)** builds on Phase 4: after the user gets recovery actions, they can optionally record and get form feedback; implement 7.1–7.5 when 4 is stable. **Phase 8 (referral flow)** adds discipline explanation, provider list (manual then API), ranking/recommended, and coverage copy + checklist when the pipeline returns a referral.
 - **Safety:** Safety Agent/tool and red-flag logic are implemented and tested before demo. Exercise feedback (Phase 7) must include "avoid further injury" tips and reuse the same "not a diagnostic tool" disclaimer.
 - **Docs:** Keep `overview.md`, `ideas.md`, `plan.md`, and `phases.txt` in sync when scope or architecture changes.

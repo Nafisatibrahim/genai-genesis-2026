@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import BodyMap from './components/BodyMap'
 import ExerciseCapture from './components/ExerciseCapture'
+import ReferralBlock from './components/ReferralBlock'
 import {
   REGION_LABELS,
   PAIN_LEVEL_MIN,
@@ -274,15 +275,10 @@ export default function App() {
                     </div>
                   )}
                   {recommendation.referral && (
-                    <div className="p-2 bg-amber-50 rounded border border-amber-200">
-                      <p className="font-medium text-slate-800">
-                        Referral: {recommendation.referral.provider_type}
-                      </p>
-                      <p className="text-slate-700">{recommendation.referral.reason}</p>
-                      {recommendation.referral.timing && (
-                        <p className="text-slate-600 text-xs mt-1">When: {recommendation.referral.timing}</p>
-                      )}
-                    </div>
+                    <ReferralBlock
+                      referral={recommendation.referral}
+                      apiUrl={API_URL}
+                    />
                   )}
                 </>
               )}
