@@ -412,7 +412,7 @@ function AppTool({ toolRef }) {
         <div className="grid grid-cols-1 gap-8 items-start">
 
           {/* ─ Left: body map + pain areas + details ─ */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 max-w-2xl mx-auto w-full">
 
             {/* Body map card */}
             <div className="bg-white rounded-2xl shadow-card overflow-hidden">
@@ -551,7 +551,7 @@ function AppTool({ toolRef }) {
           </div>
 
           {/* ─ Right: results ─ */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 max-w-2xl mx-auto w-full">
             {!recommendation && (
               <div className="bg-white rounded-2xl shadow-card flex flex-col items-center justify-center
                               py-24 px-8 text-center gap-4">
