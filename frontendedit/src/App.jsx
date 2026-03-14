@@ -404,7 +404,7 @@ function AppTool({ toolRef }) {
         {/* Health profile collapsible */}
         {showProfile && (
           <div className="max-w-2xl mx-auto mb-8">
-            <UserProfileForm onClose={() => setShowProfile(false)} />
+            <UserProfileForm apiUrl={API_URL} onClose={() => setShowProfile(false)} />
           </div>
         )}
 
