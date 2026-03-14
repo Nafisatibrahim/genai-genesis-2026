@@ -379,7 +379,7 @@ function AppTool({ toolRef }) {
   const hasMeta  = freeText || duration || triggers
 
   return (
-    <section id="app" ref={toolRef} className="bg-gray-50 py-16 md:py-24 border-t border-gray-100">
+    <section id="app" ref={toolRef} className="bg-gray-50 py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-10">
           <Badge>Interactive tool</Badge>
@@ -409,7 +409,7 @@ function AppTool({ toolRef }) {
         )}
 
         {/* Two-col layout on desktop */}
-        <div className="grid md:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 gap-8 items-start">
 
           {/* ─ Left: body map + pain areas + details ─ */}
           <div className="flex flex-col gap-4">
