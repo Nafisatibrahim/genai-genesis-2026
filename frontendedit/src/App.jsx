@@ -379,7 +379,7 @@ function AppTool({ toolRef }) {
   const hasMeta  = freeText || duration || triggers
 
   return (
-    <section id="app" ref={toolRef} className="bg-gray-50 py-16 md:py-24">
+    <section id="app" ref={toolRef} className="bg-gray-50 py-16 md:py-24 border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-10">
           <Badge>Interactive tool</Badge>
@@ -409,14 +409,14 @@ function AppTool({ toolRef }) {
         )}
 
         {/* Two-col layout on desktop */}
-        <div className="grid grid-cols-1 gap-8 items-start">
+        <div className="grid md:grid-cols-2 gap-8 items-start">
 
           {/* ─ Left: body map + pain areas + details ─ */}
           <div className="flex flex-col gap-4">
 
             {/* Body map card */}
-            <div>
-              <div className="pb-4">
+            <div className="bg-white rounded-2xl shadow-card overflow-hidden">
+              <div className="px-6 pt-5 pb-4">
                 <p className="text-base font-bold text-gray-800 mb-4">Where does it hurt?</p>
                 <div className="flex gap-3">
                   <div className="flex-1">
