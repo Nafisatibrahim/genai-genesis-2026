@@ -83,7 +83,7 @@ function Navbar({ onTryClick }) {
         </a>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-0.5">
+        <nav className="hidden lg:flex items-center gap-0.5">
           {links.map(l => (
             l.onClick
               ? <button key={l.label} onClick={l.onClick}
@@ -112,7 +112,7 @@ function Navbar({ onTryClick }) {
         </nav>
 
         {/* Auth + CTA */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden lg:flex items-center gap-2">
           {isLoading ? null : isAuthenticated ? (
             <div className="flex items-center gap-2">
               {user?.picture
@@ -144,7 +144,7 @@ function Navbar({ onTryClick }) {
         </div>
 
         {/* Mobile hamburger */}
-        <button className="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100"
+        <button className="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100"
           onClick={() => setOpen(v => !v)}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             {open
@@ -156,7 +156,7 @@ function Navbar({ onTryClick }) {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden border-t border-gray-100 bg-white px-6 py-3 flex flex-col gap-1">
+        <div className="lg:hidden border-t border-gray-100 bg-white px-6 py-3 flex flex-col gap-1">
           {links.map(l => (
             l.onClick
               ? <button key={l.label} onClick={() => { l.onClick(); setOpen(false) }}
