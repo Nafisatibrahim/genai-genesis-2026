@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: #ffffff;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Range slider */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  background: transparent;
+  cursor: pointer;
+}
+input[type='range']::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4f46e5;
+  margin-top: -7.5px;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.15), 0 1px 4px rgba(0,0,0,0.2);
+  transition: box-shadow 0.15s;
+}
+input[type='range']:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 5px rgba(79,70,229,0.2), 0 1px 4px rgba(0,0,0,0.2);
+}
+input[type='range']::-moz-range-track {
+  height: 3px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+}
+input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+}
+
+/* Scrollbar hide utility */
+.no-scroll::-webkit-scrollbar { display: none; }
+.no-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Animations */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.anim-in { animation: fadeSlideUp 0.3s ease-out both; }
+
+/* Loading dots */
+@keyframes pulse-dot {
+  0%, 80%, 100% { transform: scale(0.55); opacity: 0.4; }
+  40%           { transform: scale(1);    opacity: 1;   }
+}
+.dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+.dot:nth-child(2) { animation-delay: 0.16s; }
+.dot:nth-child(3) { animation-delay: 0.32s; }
+
+/* Card shadow */
+.shadow-card { box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06); }
+.shadow-cta  { box-shadow: 0 4px 24px rgba(79,70,229,0.35); }
