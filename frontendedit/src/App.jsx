@@ -59,7 +59,7 @@ function Navbar({ onTryClick }) {
     { label: 'Home',            href: '#home' },
     { label: 'How it works',    href: '#how' },
     { label: 'Try it',          onClick: onTryClick },
-    { label: 'Exercise Tracker', to: '/posture' },
+    { label: 'Tracker', to: '/posture' },
     { label: 'Game',            href: '/game/index.html', external: true },
     { label: 'GitHub',          href: GITHUB_URL, external: true },
     { label: 'Contact',         href: '#contact' },
@@ -80,24 +80,24 @@ function Navbar({ onTryClick }) {
         </a>
 
         {/* Desktop nav */}
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-0.5">
           {links.map(l => (
             l.onClick
               ? <button key={l.label} onClick={l.onClick}
-                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors rounded-lg hover:bg-indigo-50">
+                  className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-indigo-600 transition-colors rounded-lg hover:bg-indigo-50 whitespace-nowrap">
                   {l.label}
                 </button>
               : l.to
               ? <Link key={l.label} to={l.to}
-                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors rounded-lg hover:bg-indigo-50 flex items-center gap-1">
-                  <svg className="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-indigo-600 transition-colors rounded-lg hover:bg-indigo-50 flex items-center gap-1 whitespace-nowrap">
+                  <svg className="w-3 h-3 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
                   </svg>
                   {l.label}
                 </Link>
               : <a key={l.label} href={l.href} target={l.external ? '_blank' : undefined}
                    rel={l.external ? 'noopener noreferrer' : undefined}
-                   className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors rounded-lg hover:bg-indigo-50 flex items-center gap-1">
+                   className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-indigo-600 transition-colors rounded-lg hover:bg-indigo-50 flex items-center gap-1 whitespace-nowrap">
                   {l.label}
                   {l.external && (
                     <svg className="w-3 h-3 opacity-50" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -110,7 +110,7 @@ function Navbar({ onTryClick }) {
 
         {/* CTA */}
         <button onClick={onTryClick}
-          className="hidden lg:flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700
+          className="hidden md:flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700
                      text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-sm">
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
@@ -119,7 +119,7 @@ function Navbar({ onTryClick }) {
         </button>
 
         {/* Mobile hamburger */}
-        <button className="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100"
+        <button className="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100"
           onClick={() => setOpen(v => !v)}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             {open
@@ -131,7 +131,7 @@ function Navbar({ onTryClick }) {
 
       {/* Mobile menu */}
       {open && (
-        <div className="lg:hidden border-t border-gray-100 bg-white px-6 py-3 flex flex-col gap-1">
+        <div className="md:hidden border-t border-gray-100 bg-white px-6 py-3 flex flex-col gap-1">
           {links.map(l => (
             l.onClick
               ? <button key={l.label} onClick={() => { l.onClick(); setOpen(false) }}
@@ -337,7 +337,7 @@ function AppTool({ toolRef }) {
         </div>
 
         {/* Two-col layout on desktop */}
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
+        <div className="grid md:grid-cols-2 gap-8 items-start">
 
           {/* ─ Left: body map + pain areas + details ─ */}
           <div className="flex flex-col gap-4">
