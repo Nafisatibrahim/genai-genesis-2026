@@ -1,0 +1,10 @@
+# Posture feedback (standalone test)
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+google-generativeai
+# For /exercise-feedback-from-image (pose from image)
+mediapipe
+numpy
+pillow

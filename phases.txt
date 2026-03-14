@@ -25,3 +25,10 @@ Phase 4: API and recommendation flow
 4.1. API – FastAPI app: POST /assess (intake → pipeline result), GET /health. CORS for frontend. Run with uvicorn on PORT (Railway-ready).
 4.2. Frontend – Get recommendation: POST payload to API; show loading, then why_this_recommendation, recovery (actions, precautions) or referral (provider_type, reason, timing). Show error_message on failure.
 4.3. Railway – Deploy backend: requirements.txt, Procfile (or start command), GEMINI_API_KEY in env. Frontend: VITE_API_URL for production API URL.
+
+Phase 5: Exercise recording & posture feedback
+5.1. Capture – Frontend: camera access; record short clip or capture frames while user does the suggested exercise.
+5.2. Pose – Integrate pose estimation (e.g. MediaPipe in browser or backend); output keypoints (shoulders, hips, spine, etc.).
+5.3. Reference – Define per-exercise target form (angles/alignment or keypoint rules) for exercises the Recovery Agent suggests.
+5.4. Feedback – Compare user pose to reference; produce short corrections (rule-based or LLM) and 1–2 "avoid further injury" tips.
+5.5. UI – "Record & get feedback" flow: show exercise name, record, then show feedback and safety tips; optional overlay on video.

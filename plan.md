@@ -159,8 +159,24 @@ Step-by-step plan for building the AI Musculoskeletal Recovery Assistant (FlexCa
 
 ---
 
-## 9. Process
+## 9. Phase 7 — Exercise recording & posture feedback
 
-- **Order:** Phase 0 → 1 → 2 → 3 → 4; Phase 5 (RAG) and 6 (demo) in parallel once 2–4 are stable.
-- **Safety:** Safety Agent/tool and red-flag logic are implemented and tested before demo.
-- **Docs:** Keep `overview.md`, `ideas.md`, and `plan.md` in sync when scope or architecture changes.
+*Goal: Let users record themselves doing a suggested exercise, analyze posture, and get feedback to reduce risk of further injury. Fits after Recovery recommendation (Phase 4); uses same exercise set the Recovery Agent suggests.*
+
+| Step | Task | Details |
+|------|------|---------|
+| 7.1 | Capture | Frontend: request camera (e.g. `getUserMedia`); record a short clip or capture frames while the user performs the suggested exercise. Optional: upload pre-recorded video. |
+| 7.2 | Pose estimation | Integrate pose detection: **Option A** — MediaPipe Pose in the browser (no video sent to server); **Option B** — backend (MediaPipe/OpenCV or API). Output: keypoints (shoulders, hips, spine, knees, etc.) per frame or snapshot. |
+| 7.3 | Exercise reference | For each exercise the Recovery Agent can suggest, define a minimal "target form": key angles or alignment rules (e.g. "spine neutral," "knee over ankle"). Store in code or small config/DB keyed by exercise_id or name. |
+| 7.4 | Feedback logic | Compare user pose to reference (rule-based: angle thresholds, alignment). Optionally: send keypoints + exercise_id to backend; use LLM (Gemini) to generate 1–2 natural-language corrections and "avoid further injury" tips. API: e.g. `POST /exercise-feedback` with `{ exercise_id, keypoints }` → `{ corrections[], safety_tips[] }`. |
+| 7.5 | UI flow | After showing recovery actions, add "Record & get feedback" (or per-exercise "Do this & get form check"). Show exercise name → start camera → user does exercise → submit → display feedback and safety tips. Optional: overlay skeleton or corrections on video. Reuse disclaimer: not a substitute for in-person assessment. |
+
+*Dependencies:* Recovery Agent (2.3) and its list of suggested exercises; Phase 4 frontend so the user sees which exercise to perform. *Order:* 7.1 → 7.2 → 7.3 → 7.4 → 7.5; 7.2 can be client-only (MediaPipe in browser) for privacy and latency.
+
+---
+
+## 10. Process
+
+- **Order:** Phase 0 → 1 → 2 → 3 → 4; Phase 5 (RAG) and 6 (demo) in parallel once 2–4 are stable. **Phase 7 (exercise recording & posture feedback)** builds on Phase 4: after the user gets recovery actions, they can optionally record and get form feedback; implement 7.1–7.5 when 4 is stable.
+- **Safety:** Safety Agent/tool and red-flag logic are implemented and tested before demo. Exercise feedback (Phase 7) must include "avoid further injury" tips and reuse the same "not a diagnostic tool" disclaimer.
+- **Docs:** Keep `overview.md`, `ideas.md`, `plan.md`, and `phases.txt` in sync when scope or architecture changes.

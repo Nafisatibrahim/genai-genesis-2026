@@ -7,3 +7,5 @@
 - **API:** FastAPI `POST /assess`, `GET /health`.
 
 **Deploy API on Railway:** Set `GEMINI_API_KEY`, start with `uvicorn backend.api:app --host 0.0.0.0 --port $PORT` (or use `Procfile`). Frontend: set `VITE_API_URL` to your Railway URL for production.
+
+- **Production API:** `https://genai-genesis-2026-production.up.railway.app` — for production frontend build set `VITE_API_URL=https://genai-genesis-2026-production.up.railway.app` (no trailing slash).

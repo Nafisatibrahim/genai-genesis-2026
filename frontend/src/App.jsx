@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import BodyMap from './components/BodyMap'
+import ExerciseCapture from './components/ExerciseCapture'
 import {
   REGION_LABELS,
   PAIN_LEVEL_MIN,
@@ -20,6 +21,7 @@ export default function App() {
   const [recommendation, setRecommendation] = useState(null)
   const [loading, setLoading] = useState(false)
   const [submitError, setSubmitError] = useState(null)
+  const [showExerciseCapture, setShowExerciseCapture] = useState(false)
 
   const handleRegionClick = (regionId) => {
     setRegionLevels((prev) => ({
@@ -253,6 +255,22 @@ export default function App() {
                           </ul>
                         </>
                       )}
+                      <div className="mt-3">
+                        {!showExerciseCapture ? (
+                          <button
+                            type="button"
+                            onClick={() => setShowExerciseCapture(true)}
+                            className="px-3 py-1.5 rounded bg-slate-700 text-white text-sm font-medium hover:bg-slate-800"
+                          >
+                            Record & get feedback
+                          </button>
+                        ) : (
+                          <ExerciseCapture
+                            exerciseName={recommendation.recovery.actions?.[0]?.slice(0, 40) || 'suggested exercise'}
+                            onClose={() => setShowExerciseCapture(false)}
+                          />
+                        )}
+                      </div>
                     </div>
                   )}
                   {recommendation.referral && (
