@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth0 } from '@auth0/auth0-react'
 import BodyMap from './components/BodyMap'
 import ExerciseCapture from './components/ExerciseCapture'
 import ReferralBlock from './components/ReferralBlock'
@@ -55,6 +56,7 @@ function Badge({ children }) {
 
 function Navbar({ onTryClick }) {
   const [open, setOpen] = useState(false)
+  const { isAuthenticated, isLoading, loginWithRedirect, logout, user } = useAuth0()
 
   const links = [
     { label: 'Home',            href: '#home' },
@@ -109,15 +111,37 @@ function Navbar({ onTryClick }) {
           ))}
         </nav>
 
-        {/* CTA */}
-        <button onClick={onTryClick}
-          className="hidden md:flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700
-                     text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-sm">
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-          </svg>
-          Try free
-        </button>
+        {/* Auth + CTA */}
+        <div className="hidden md:flex items-center gap-2">
+          {isLoading ? null : isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              {user?.picture
+                ? <img src={user.picture} alt={user.name} className="w-8 h-8 rounded-full border-2 border-indigo-200"/>
+                : <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm">
+                    {(user?.name || user?.email || '?')[0].toUpperCase()}
+                  </div>}
+              <span className="text-sm text-gray-700 font-medium max-w-[120px] truncate">{user?.name || user?.email}</span>
+              <button
+                onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+                className="px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-red-600 border border-gray-200 hover:border-red-200 rounded-lg transition-colors">
+                Log out
+              </button>
+            </div>
+          ) : (
+            <>
+              <button
+                onClick={() => loginWithRedirect()}
+                className="px-3 py-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 border border-indigo-200 hover:border-indigo-300 rounded-lg transition-colors">
+                Log in
+              </button>
+              <button
+                onClick={() => loginWithRedirect({ authorizationParams: { screen_hint: 'signup' } })}
+                className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors shadow-sm">
+                Sign up free
+              </button>
+            </>
+          )}
+        </div>
 
         {/* Mobile hamburger */}
         <button className="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100"
@@ -151,6 +175,34 @@ function Navbar({ onTryClick }) {
                   {l.label}
                 </a>
           ))}
+          <div className="border-t border-gray-100 pt-2 mt-1 flex flex-col gap-1">
+            {!isLoading && (isAuthenticated ? (
+              <div className="flex items-center gap-2 px-3 py-2">
+                {user?.picture
+                  ? <img src={user.picture} alt={user.name} className="w-7 h-7 rounded-full"/>
+                  : <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">
+                      {(user?.name || user?.email || '?')[0].toUpperCase()}
+                    </div>}
+                <span className="text-sm text-gray-700 font-medium flex-1 truncate">{user?.name || user?.email}</span>
+                <button
+                  onClick={() => { logout({ logoutParams: { returnTo: window.location.origin } }); setOpen(false) }}
+                  className="text-xs text-red-500 font-medium px-2 py-1 rounded-lg hover:bg-red-50">
+                  Log out
+                </button>
+              </div>
+            ) : (
+              <>
+                <button onClick={() => { loginWithRedirect(); setOpen(false) }}
+                  className="text-left px-3 py-2 text-sm font-medium text-indigo-600 rounded-lg hover:bg-indigo-50">
+                  Log in
+                </button>
+                <button onClick={() => { loginWithRedirect({ authorizationParams: { screen_hint: 'signup' } }); setOpen(false) }}
+                  className="text-left px-3 py-2 text-sm font-semibold text-indigo-700 rounded-lg hover:bg-indigo-50">
+                  Sign up free
+                </button>
+              </>
+            ))}
+          </div>
         </div>
       )}
     </header>
