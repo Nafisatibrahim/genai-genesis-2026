@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import BodyMap from './components/BodyMap'
 import ExerciseCapture from './components/ExerciseCapture'
+import ReferralBlock from './components/ReferralBlock'
 import { REGION_LABELS, PAIN_LEVEL_MIN, PAIN_LEVEL_MAX } from './constants/regions'
 import { buildIntakePayload } from './utils/intake'
 
@@ -567,13 +568,7 @@ function AppTool({ toolRef }) {
                       </div>
                       <span className="text-sm font-bold text-gray-800">See a specialist</span>
                     </div>
-                    <div className="bg-amber-50 rounded-xl p-4">
-                      <p className="text-sm font-bold text-amber-800 mb-1">{recommendation.referral.provider_type}</p>
-                      <p className="text-sm text-amber-700 leading-relaxed">{recommendation.referral.reason}</p>
-                      {recommendation.referral.timing && (
-                        <p className="text-xs text-amber-600 font-semibold mt-2">When: {recommendation.referral.timing}</p>
-                      )}
-                    </div>
+                    <ReferralBlock referral={recommendation.referral} apiUrl={API_URL}/>
                   </div>
                 )}
 
