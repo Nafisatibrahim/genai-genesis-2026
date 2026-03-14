@@ -6,14 +6,24 @@
 
 import { useState, useRef, useEffect } from 'react'
 
-export default function ExerciseCapture({ exerciseName = 'exercise', onFramesCaptured, onClose }) {
+export default function ExerciseCapture({ exerciseName = 'exercise', apiUrl, onFramesCaptured, onClose }) {
+  const baseUrl = apiUrl || (import.meta.env.VITE_API_URL || 'http://localhost:8000')
   const videoRef = useRef(null)
   const streamRef = useRef(null)
   const mediaRecorderRef = useRef(null)
+  const [exercises, setExercises] = useState([])
   const [status, setStatus] = useState('idle') // idle | asking | live | recording | error
   const [errorMessage, setErrorMessage] = useState(null)
   const [capturedFrames, setCapturedFrames] = useState([])
   const [recordedBlob, setRecordedBlob] = useState(null)
+
+  useEffect(() => {
+    if (!baseUrl) return
+    fetch(`${baseUrl}/exercises`)
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data) => setExercises(data.exercises || []))
+      .catch(() => setExercises([]))
+  }, [baseUrl])
 
   const startCamera = async () => {
     setStatus('asking')
@@ -127,6 +137,18 @@ export default function ExerciseCapture({ exerciseName = 'exercise', onFramesCap
           </button>
         )}
       </div>
+      {exercises.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="font-medium text-slate-800 text-sm">How to do it</h4>
+          {exercises.map((ex) => (
+            <div key={ex.id} className="rounded border border-slate-200 bg-white p-3 text-sm">
+              <p className="font-medium text-slate-800">{ex.name}</p>
+              <p className="text-slate-600 mt-1">{ex.instructions}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
       <p className="text-sm text-slate-600">
         Use your camera to record yourself doing the exercise, or capture a few frames. Feedback (posture analysis) will be added in a later step.
       </p>
