@@ -131,12 +131,12 @@ function Navbar({ onTryClick }) {
             <>
               <button
                 onClick={() => loginWithRedirect()}
-                className="px-3 py-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 border border-indigo-200 hover:border-indigo-300 rounded-lg transition-colors">
+                className="px-3 py-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 border border-indigo-200 hover:border-indigo-300 rounded-lg transition-colors whitespace-nowrap">
                 Log in
               </button>
               <button
                 onClick={() => loginWithRedirect({ authorizationParams: { screen_hint: 'signup' } })}
-                className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors shadow-sm">
+                className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors shadow-sm whitespace-nowrap">
                 Sign up free
               </button>
             </>
