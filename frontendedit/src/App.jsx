@@ -4,6 +4,7 @@ import BodyMap from './components/BodyMap'
 import ExerciseCapture from './components/ExerciseCapture'
 import ReferralBlock from './components/ReferralBlock'
 import ResultsPanel from './components/ResultsPanel'
+import UserProfileForm, { FLEXCARE_SESSION_KEY } from './components/UserProfileForm'
 import { REGION_LABELS, PAIN_LEVEL_MIN, PAIN_LEVEL_MAX } from './constants/regions'
 import { buildIntakePayload } from './utils/intake'
 
@@ -300,13 +301,15 @@ function AppTool({ toolRef }) {
   const [error, setError]         = useState(null)
   const [showDetails, setShowDetails] = useState(false)
   const [showCapture, setShowCapture] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
 
   const add    = id  => setRegionLevels(p => ({ ...p, [id]: p[id] ?? DEFAULT_PAIN_LEVEL }))
   const remove = id  => setRegionLevels(p => { const n = { ...p }; delete n[id]; return n })
   const setLv  = (id, v) => setRegionLevels(p => ({ ...p, [id]: Math.max(PAIN_LEVEL_MIN, Math.min(PAIN_LEVEL_MAX, v)) }))
 
   const submit = async () => {
-    const payload = buildIntakePayload(regionLevels, { free_text: freeText, duration, triggers })
+    const session_id = localStorage.getItem(FLEXCARE_SESSION_KEY) || undefined
+    const payload = buildIntakePayload(regionLevels, { free_text: freeText, duration, triggers, session_id })
     setError(null); setRecommendation(null); setLoading(true)
     try {
       const res = await fetch(`${API_URL}/assess`, {
@@ -334,7 +337,24 @@ function AppTool({ toolRef }) {
           <p className="mt-2 text-gray-500 text-base">
             Select muscle regions, rate your pain, and get a personalised recovery plan.
           </p>
+          <button
+            onClick={() => setShowProfile(v => !v)}
+            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-medium transition"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+            </svg>
+            {showProfile ? 'Hide health profile' : 'Add health profile'}
+            <span className="text-xs text-indigo-400 font-normal">(personalises your results)</span>
+          </button>
         </div>
+
+        {/* Health profile collapsible */}
+        {showProfile && (
+          <div className="max-w-2xl mx-auto mb-8">
+            <UserProfileForm onClose={() => setShowProfile(false)} />
+          </div>
+        )}
 
         {/* Two-col layout on desktop */}
         <div className="grid md:grid-cols-2 gap-8 items-start">
