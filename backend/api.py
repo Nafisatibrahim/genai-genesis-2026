@@ -26,6 +26,7 @@ from backend.referral_providers import (
     ReferralProviderType,
 )
 from backend.referral_coverage import get_insurers, get_plans, estimate_cost
+from backend.exercises import get_exercises
 
 try:
     from dotenv import load_dotenv
@@ -51,6 +52,12 @@ app.add_middleware(
 def health():
     """Readiness check for Railway and load balancers."""
     return {"status": "ok"}
+
+
+@app.get("/exercises")
+def exercises():
+    """List guided exercises (id, name, instructions). No demo video; text only."""
+    return {"exercises": get_exercises()}
 
 
 class ProfilePutBody(BaseModel):
