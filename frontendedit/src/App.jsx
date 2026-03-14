@@ -60,6 +60,7 @@ function Navbar({ onTryClick }) {
     { label: 'How it works',    href: '#how' },
     { label: 'Try it',          onClick: onTryClick },
     { label: 'Exercise Tracker', to: '/posture' },
+    { label: 'Game',            href: '/game/index.html', external: true },
     { label: 'GitHub',          href: GITHUB_URL, external: true },
     { label: 'Contact',         href: '#contact' },
   ]

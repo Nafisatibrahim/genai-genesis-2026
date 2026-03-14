@@ -22,6 +22,12 @@
 frontendapp/node_modules/
 frontendapp/dist/
 
+# Teammate editable copy — tracked in git
+!/frontendedit/
+!/frontendedit/**
+frontendedit/node_modules/
+frontendedit/dist/
+
 # Environment and secrets (API keys) — ignored everywhere
 .env
 
