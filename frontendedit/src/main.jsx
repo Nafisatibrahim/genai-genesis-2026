@@ -9,8 +9,8 @@ import PosturePage from './pages/PosturePage.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Auth0Provider
-      domain="dev-wrrmvshcm6okdzli.us.auth0.com"
-      clientId="yIPztIyEwQM1x7BXxQKRmisnPGhB48w7"
+      domain={import.meta.env.VITE_AUTH0_DOMAIN}
+      clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
       authorizationParams={{ redirect_uri: window.location.origin }}
     >
       <BrowserRouter>
