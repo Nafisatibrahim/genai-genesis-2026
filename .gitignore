@@ -17,6 +17,10 @@
 !/backend/**
 !/backend_test/
 !/backend_test/**
+!/frontendapp/
+!/frontendapp/**
+frontendapp/node_modules/
+frontendapp/dist/
 
 # Environment and secrets (API keys) — ignored everywhere
 .env
