@@ -80,7 +80,7 @@ function Navbar({ onTryClick }) {
         </a>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-1">
           {links.map(l => (
             l.onClick
               ? <button key={l.label} onClick={l.onClick}
@@ -110,7 +110,7 @@ function Navbar({ onTryClick }) {
 
         {/* CTA */}
         <button onClick={onTryClick}
-          className="hidden md:flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700
+          className="hidden lg:flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700
                      text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-sm">
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
@@ -119,7 +119,7 @@ function Navbar({ onTryClick }) {
         </button>
 
         {/* Mobile hamburger */}
-        <button className="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100"
+        <button className="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100"
           onClick={() => setOpen(v => !v)}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             {open
@@ -131,7 +131,7 @@ function Navbar({ onTryClick }) {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden border-t border-gray-100 bg-white px-6 py-3 flex flex-col gap-1">
+        <div className="lg:hidden border-t border-gray-100 bg-white px-6 py-3 flex flex-col gap-1">
           {links.map(l => (
             l.onClick
               ? <button key={l.label} onClick={() => { l.onClick(); setOpen(false) }}
