@@ -1,0 +1,27 @@
+Phase 1: Data & Schema
+1.1. Define body map regions (neck, upper_back, lower_back, left_shoulder, right_shoulder) and give each an ID
+1.2. Define pain level scale (1-10)
+1.3. Define intake schema (Pydantic) regions: [{ region_id, level }], optional free_text, duration, triggers.
+1.401.7. Define output schemas for Assessment, Safety, Recovery, and Referral
+
+Phase 2: Backend pipeline (agents)
+2.1. Assessment Agent – Railtracks agent with structured output (symptom summary, risk level, missing_info). Input: body map (regions + levels) and optional free text.
+2.2. Safety tool/agent – Rule-based red-flag check (e.g. numbness, bowel/bladder, chest pain, weakness, trauma). Input: assessment summary. Output: safe_to_continue | professional_soon | urgent_care; optional list of triggered red flags.
+2.3. Recovery Agent – Suggests stretches, posture, breaks when safe. Input: assessment (when Safety says safe). Optional: RAG tool over vetted exercise content.
+2.4. Referral Agent – Recommends next step: physio | chiro | massage | urgent | none. Input: assessment + safety + optional progress. Optional: RAG over referral guidelines.
+2.5. Orchestration – Linear pipeline: intake → Assessment → Safety → (if safe) Recovery; (if not safe or referral needed) Referral. Single async entry point (e.g. run_flexcare_pipeline(intake)).
+2.6. “Why” and summary – Pipeline returns structured response plus short why_this_recommendation string for UI. Optional: session_summary for user/clinician.
+2.7. Error handling – On LLM/agent failure: return generic “try again or speak to a professional” message; log minimal metadata (no PII).
+
+Phase 3: Body map (frontend)
+3.1. Body silhouette – SVG (or canvas) with back view (or front/back). Predefined clickable regions matching backend region IDs.
+3.2. Interaction – Click/tap region to set pain level (dropdown or slider 1–10). Multiple regions allowed.
+3.3. Heat visualization – Color scale: cold (low pain) → hot (high pain). Optionally show numeric label per region (accessibility).
+3.4. Data binding – Build intake payload: regions: [{ region_id, level }], optional free_text, duration, triggers; ready to send to backend.
+3.5. Text alternative – "Or describe where it hurts" so users can skip the map. Map and text can be combined in one intake.
+3.6. Mobile – Touch-friendly targets; test on small screen.
+
+Phase 4: API and recommendation flow
+4.1. API – FastAPI app: POST /assess (intake → pipeline result), GET /health. CORS for frontend. Run with uvicorn on PORT (Railway-ready).
+4.2. Frontend – Get recommendation: POST payload to API; show loading, then why_this_recommendation, recovery (actions, precautions) or referral (provider_type, reason, timing). Show error_message on failure.
+4.3. Railway – Deploy backend: requirements.txt, Procfile (or start command), GEMINI_API_KEY in env. Frontend: VITE_API_URL for production API URL.

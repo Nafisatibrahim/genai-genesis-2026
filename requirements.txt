@@ -1,0 +1,8 @@
+railtracks
+railtracks-cli
+python-dotenv
+pydantic
+chromadb
+openai
+fastapi
+uvicorn[standard]

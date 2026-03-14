@@ -1,13 +1,22 @@
-# Ignore everything at repo root except frontend, backend, backend_test, README.md (and this file)
+# Ignore everything at repo root except whitelisted paths
 *
 !.gitignore
+!/README.md
+!/Procfile
+!/requirements.txt
+!/phases.txt
+!/overview.md
+!/plan.md
+!/LICENSE
+!/quick_test.py
+!/docs/
+!/docs/**
 !/frontend/
 !/frontend/**
 !/backend/
 !/backend/**
 !/backend_test/
 !/backend_test/**
-!/README.md
 
 # Environment and secrets (API keys) — ignored everywhere
 .env
