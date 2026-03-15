@@ -2,6 +2,23 @@ import { useState, useEffect, useRef } from 'react'
 import { FLEXCARE_SESSION_KEY } from './UserProfileForm'
 
 const META_KEY = 'flexcare_user_meta'
+const DOC_KEY  = 'flexcare_insurance_doc'
+
+const MAX_DOC_BYTES = 4 * 1024 * 1024 // 4 MB
+
+function loadDoc() {
+  try {
+    const raw = localStorage.getItem(DOC_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+
+function saveDoc(doc) {
+  try {
+    if (doc) localStorage.setItem(DOC_KEY, JSON.stringify(doc))
+    else localStorage.removeItem(DOC_KEY)
+  } catch { }
+}
 
 function loadMeta() {
   try {
@@ -65,7 +82,11 @@ function Field({ label, children, half }) {
 
 export default function UserProfilePanel({ open, onClose, apiUrl, auth0User }) {
   const panelRef = useRef(null)
+  const fileInputRef = useRef(null)
   const [sessionId, setSessionId] = useState('')
+  const [insuranceDoc, setInsuranceDoc] = useState(null)
+  const [docError, setDocError] = useState('')
+  const [docDragging, setDocDragging] = useState(false)
 
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -97,6 +118,8 @@ export default function UserProfilePanel({ open, onClose, apiUrl, auth0User }) {
   const age = calcAge(dob)
 
   useEffect(() => { setSessionId(getOrCreateSessionId()) }, [])
+
+  useEffect(() => { setInsuranceDoc(loadDoc()) }, [])
 
   useEffect(() => {
     if (auth0User?.name && !fullName) setFullName(auth0User.name)
@@ -156,6 +179,33 @@ export default function UserProfilePanel({ open, onClose, apiUrl, auth0User }) {
     document.addEventListener('keydown', handleKey)
     return () => document.removeEventListener('keydown', handleKey)
   }, [open, onClose])
+
+  const handleDocFile = (file) => {
+    setDocError('')
+    if (!file) return
+    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
+    if (!allowed.includes(file.type)) {
+      setDocError('Only PDF, JPG, PNG or WebP files are supported.')
+      return
+    }
+    if (file.size > MAX_DOC_BYTES) {
+      setDocError('File is too large (max 4 MB). Try a compressed PDF or image.')
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const doc = { name: file.name, type: file.type, data: ev.target.result, size: file.size }
+      setInsuranceDoc(doc)
+      saveDoc(doc)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const removeDoc = () => {
+    setInsuranceDoc(null)
+    saveDoc(null)
+    setDocError('')
+  }
 
   const handleSave = async (e) => {
     e.preventDefault()
@@ -352,8 +402,10 @@ export default function UserProfilePanel({ open, onClose, apiUrl, auth0User }) {
                 </div>
                 <h3 className="font-semibold text-gray-800 text-sm">Insurance</h3>
               </div>
-              <p className="text-xs text-gray-400 mb-3">Saved here so the Coverage section auto-fills after your assessment.</p>
-              <div className="grid grid-cols-2 gap-3">
+              <p className="text-xs text-gray-400 mb-3">Insurer &amp; plan auto-fills the Coverage section. Upload your plan document for reference.</p>
+
+              {/* Insurer + Plan selectors */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
                 <Field label="Insurer" half>
                   <select value={insurerSlug} onChange={e => { setInsurerSlug(e.target.value); setPlanSlug('') }} className={selectCls}>
                     <option value="">None</option>
@@ -367,6 +419,99 @@ export default function UserProfilePanel({ open, onClose, apiUrl, auth0User }) {
                     {plans.map(p => <option key={p.slug} value={p.slug}>{p.name}</option>)}
                   </select>
                 </Field>
+              </div>
+
+              {/* Document upload */}
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Plan document</p>
+
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  className="hidden"
+                  onChange={e => { handleDocFile(e.target.files?.[0]); e.target.value = '' }}
+                />
+
+                {insuranceDoc ? (
+                  /* ── Uploaded file preview ── */
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 overflow-hidden">
+                    {insuranceDoc.type.startsWith('image/') ? (
+                      <img
+                        src={insuranceDoc.data}
+                        alt={insuranceDoc.name}
+                        className="w-full max-h-48 object-contain bg-white"
+                      />
+                    ) : (
+                      <div className="flex items-center gap-3 px-4 py-5">
+                        <div className="w-10 h-12 rounded-md bg-red-100 flex flex-col items-center justify-center shrink-0">
+                          <span className="text-red-600 text-[10px] font-bold uppercase leading-none">PDF</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-800 truncate">{insuranceDoc.name}</p>
+                          <p className="text-xs text-gray-400">{(insuranceDoc.size / 1024).toFixed(0)} KB</p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 px-4 py-2 border-t border-emerald-200 bg-white/60">
+                      <svg className="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <p className="text-xs text-gray-600 flex-1 truncate">{insuranceDoc.name}</p>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="text-xs text-indigo-600 hover:text-indigo-700 font-medium px-2 py-0.5 rounded hover:bg-indigo-50 transition"
+                      >
+                        Replace
+                      </button>
+                      <button
+                        type="button"
+                        onClick={removeDoc}
+                        className="text-xs text-red-500 hover:text-red-600 font-medium px-2 py-0.5 rounded hover:bg-red-50 transition"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* ── Drop zone ── */
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={e => { e.preventDefault(); setDocDragging(true) }}
+                    onDragLeave={() => setDocDragging(false)}
+                    onDrop={e => {
+                      e.preventDefault()
+                      setDocDragging(false)
+                      handleDocFile(e.dataTransfer.files?.[0])
+                    }}
+                    className={`cursor-pointer rounded-xl border-2 border-dashed px-6 py-8 text-center transition ${
+                      docDragging
+                        ? 'border-indigo-400 bg-indigo-50'
+                        : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-3">
+                      <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                      </svg>
+                    </div>
+                    <p className="text-sm font-medium text-gray-700">Click or drag your plan document here</p>
+                    <p className="text-xs text-gray-400 mt-1">PDF, JPG or PNG · max 4 MB</p>
+                  </div>
+                )}
+
+                {docError && (
+                  <p className="mt-2 text-xs text-red-600 flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                    </svg>
+                    {docError}
+                  </p>
+                )}
+
+                <p className="text-xs text-gray-400 mt-2">Stored locally in your browser only — never uploaded to a server.</p>
               </div>
             </section>
 
