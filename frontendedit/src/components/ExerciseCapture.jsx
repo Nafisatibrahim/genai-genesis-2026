@@ -6,7 +6,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 
-export default function ExerciseCapture({ exerciseName = 'exercise', onFramesCaptured, onClose }) {
+export default function ExerciseCapture({ exerciseName = 'exercise', onFramesCaptured, onClose, apiUrl }) {
   const videoRef = useRef(null)
   const streamRef = useRef(null)
   const mediaRecorderRef = useRef(null)
@@ -14,6 +14,24 @@ export default function ExerciseCapture({ exerciseName = 'exercise', onFramesCap
   const [errorMessage, setErrorMessage] = useState(null)
   const [capturedFrames, setCapturedFrames] = useState([])
   const [recordedBlob, setRecordedBlob] = useState(null)
+  const [exercises, setExercises] = useState([])
+
+  const baseUrl = apiUrl || (import.meta.env.VITE_API_URL || 'http://localhost:8000')
+
+  useEffect(() => {
+    fetch(`${baseUrl}/exercises`)
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => setExercises(d.exercises || []))
+      .catch(() => setExercises([]))
+  }, [baseUrl])
+
+  /* Attach stream after the <video> element mounts (status changes to 'live') */
+  useEffect(() => {
+    if (status === 'live' && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current
+      videoRef.current.play().catch(() => {})
+    }
+  }, [status])
 
   const startCamera = async () => {
     setStatus('asking')
@@ -24,9 +42,6 @@ export default function ExerciseCapture({ exerciseName = 'exercise', onFramesCap
         audio: false,
       })
       streamRef.current = stream
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-      }
       setStatus('live')
     } catch (err) {
       setStatus('error')
@@ -126,6 +141,18 @@ export default function ExerciseCapture({ exerciseName = 'exercise', onFramesCap
       <p className="text-sm text-slate-600">
         Use your camera to record yourself doing the exercise, or capture a few frames. Feedback (posture analysis) will be added in a later step.
       </p>
+
+      {exercises.length > 0 && (
+        <div className="rounded-lg border border-slate-200 bg-white p-3 space-y-3">
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500">How to do it</p>
+          {exercises.map(ex => (
+            <div key={ex.id}>
+              <p className="text-sm font-semibold text-slate-800">{ex.name}</p>
+              <p className="text-sm text-slate-600 mt-0.5 leading-relaxed">{ex.instructions}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {status === 'idle' && (
         <button
