@@ -401,6 +401,7 @@ function AppTool({ toolRef }) {
         id: Date.now().toString(36) + Math.random().toString(36).slice(2),
         date: new Date().toISOString(),
         areas: areaLabels,
+        regionLevels,
         painLevel: avgPain,
         notes: [freeText, duration ? `Duration: ${duration}` : '', triggers ? `Triggers: ${triggers}` : ''].filter(Boolean).join(' | '),
         source: 'assessment',

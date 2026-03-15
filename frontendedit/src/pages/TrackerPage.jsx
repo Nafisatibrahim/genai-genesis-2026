@@ -1,5 +1,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import BodyMap from '../components/BodyMap'
+import { REGION_LABELS } from '../constants/regions'
 
 /* ─── Storage keys ──────────────────────────────────────────── */
 export const SYMPTOM_LOGS_KEY  = 'flexcare_symptom_logs'
@@ -116,6 +118,23 @@ function SectionHeader({ icon, title, color, count, onAdd }) {
   )
 }
 
+/* ─── Mini body map (scaled down for entry cards) ──────────── */
+const MINI_SCALE = 0.21
+function MiniBodyMap({ regionLevels }) {
+  if (!regionLevels || Object.keys(regionLevels).length === 0) return null
+  return (
+    <div className="flex gap-3 mt-2">
+      {['back', 'front'].map(s => (
+        <div key={s} className="relative" style={{ width: Math.round(320 * MINI_SCALE), height: Math.round(480 * MINI_SCALE), overflow: 'hidden', flexShrink: 0 }}>
+          <div style={{ transform: `scale(${MINI_SCALE})`, transformOrigin: 'top left', width: `${Math.round(100 / MINI_SCALE)}%`, pointerEvents: 'none' }}>
+            <BodyMap regionLevels={regionLevels} side={s} gender="male"/>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 /* ─── Log entry card ────────────────────────────────────────── */
 function EntryCard({ children, onDelete, tag }) {
   return (
@@ -137,14 +156,42 @@ function EntryCard({ children, onDelete, tag }) {
 /* ─── Symptom log form ──────────────────────────────────────── */
 function SymptomForm({ onSave, onCancel }) {
   const [date, setDate] = useState(toDateStr())
-  const [areas, setAreas] = useState('')
+  const [regionLevels, setRegionLevels] = useState({})
   const [painLevel, setPainLevel] = useState(5)
+  const [side, setSide] = useState('back')
   const [notes, setNotes] = useState('')
+
+  const selectedIds = Object.keys(regionLevels)
+
+  function handleRegionClick(regionId) {
+    setRegionLevels(prev => {
+      if (prev[regionId]) {
+        const next = { ...prev }
+        delete next[regionId]
+        return next
+      }
+      return { ...prev, [regionId]: Number(painLevel) }
+    })
+  }
+
+  function handlePainChange(val) {
+    const n = Number(val)
+    setPainLevel(n)
+    if (Object.keys(regionLevels).length > 0) {
+      setRegionLevels(prev => {
+        const next = {}
+        Object.keys(prev).forEach(id => { next[id] = n })
+        return next
+      })
+    }
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!areas.trim()) return
-    onSave({ id: uid(), date, areas: areas.split(',').map(s => s.trim()).filter(Boolean), painLevel: Number(painLevel), notes: notes.trim(), source: 'manual' })
+    if (selectedIds.length === 0) return
+    const areas = selectedIds.map(id => REGION_LABELS[id] || id)
+    const avgPain = Math.round(Object.values(regionLevels).reduce((s, v) => s + v, 0) / selectedIds.length)
+    onSave({ id: uid(), date, areas, regionLevels, painLevel: avgPain, notes: notes.trim(), source: 'manual' })
   }
 
   return (
@@ -158,6 +205,7 @@ function SymptomForm({ onSave, onCancel }) {
         </button>
       </div>
 
+      {/* Date + pain level */}
       <div className="grid grid-cols-2 gap-3">
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-gray-500">Date</span>
@@ -166,17 +214,43 @@ function SymptomForm({ onSave, onCancel }) {
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-gray-500">Pain level: <strong className="text-gray-800">{painLevel}/10</strong></span>
-          <input type="range" min="1" max="10" value={painLevel} onChange={e => setPainLevel(e.target.value)}
+          <input type="range" min="1" max="10" value={painLevel} onChange={e => handlePainChange(e.target.value)}
             className="mt-2 accent-indigo-600"/>
         </label>
       </div>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-xs font-medium text-gray-500">Body areas (comma-separated)</span>
-        <input type="text" value={areas} onChange={e => setAreas(e.target.value)}
-          placeholder="e.g. Lower back, Left knee, Neck" required
-          className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
-      </label>
+      {/* Body map */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-gray-500">
+            Tap body areas {selectedIds.length > 0 ? `(${selectedIds.length} selected)` : '— select at least one'}
+          </span>
+          <div className="flex rounded-lg overflow-hidden border border-gray-200 text-xs">
+            {['front','back'].map(s => (
+              <button key={s} type="button" onClick={() => setSide(s)}
+                className={`px-3 py-1 font-medium capitalize transition ${side === s ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-xl overflow-hidden border border-gray-100 bg-gray-50">
+          <BodyMap regionLevels={regionLevels} onRegionClick={handleRegionClick} side={side} gender="male"/>
+        </div>
+        {selectedIds.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {selectedIds.map(id => (
+              <button key={id} type="button" onClick={() => handleRegionClick(id)}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-indigo-100 text-indigo-700 font-medium hover:bg-red-100 hover:text-red-600 transition">
+                {REGION_LABELS[id] || id}
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       <label className="flex flex-col gap-1">
         <span className="text-xs font-medium text-gray-500">Notes (optional)</span>
@@ -186,7 +260,8 @@ function SymptomForm({ onSave, onCancel }) {
       </label>
 
       <div className="flex gap-2 pt-1">
-        <button type="submit" className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition shadow-sm">
+        <button type="submit" disabled={selectedIds.length === 0}
+          className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-semibold transition shadow-sm">
           Save entry
         </button>
         <button type="button" onClick={onCancel} className="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50 transition">
@@ -563,7 +638,13 @@ export default function TrackerPage() {
               <div className="space-y-2">
                 {filteredSymptoms.map(log => (
                   <EntryCard key={log.id} onDelete={() => deleteSymptom(log.id)}>
-                    <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-3">
+                      {/* Mini body maps – shown when regionLevels data is available */}
+                      {log.regionLevels && Object.keys(log.regionLevels).length > 0 && (
+                        <div className="shrink-0 pt-0.5">
+                          <MiniBodyMap regionLevels={log.regionLevels}/>
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
                           <span className="text-xs text-gray-400 font-medium">{formatDate(log.date)}</span>
