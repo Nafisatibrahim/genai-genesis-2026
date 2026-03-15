@@ -17,7 +17,7 @@ const inputCls =
 function providerPros(provider) {
   const pros = []
   if (provider.recommended)         pros.push('AI-ranked #1 match for your condition and location')
-  if (provider.accepts_direct_bill) pros.push('Accepts direct billing — no out-of-pocket paperwork')
+  if (provider.accepts_direct_bill) pros.push('Accepts direct billing, no out-of-pocket paperwork')
   if (provider.languages?.length > 1)
     pros.push(`Multilingual staff (${provider.languages.join(', ')})`)
   if (provider.phone)               pros.push('Phone contact available for easy booking')
@@ -27,9 +27,9 @@ function providerPros(provider) {
 function providerCautions(provider) {
   const cautions = []
   if (!provider.accepts_direct_bill)
-    cautions.push('Does not direct-bill — you pay upfront and submit a claim')
+    cautions.push('Does not direct-bill. You pay upfront and submit a claim.')
   if (!provider.recommended)
-    cautions.push('Not the top-ranked match — consider comparing with the recommended provider')
+    cautions.push('Not the top-ranked match. Consider comparing with the recommended provider.')
   return cautions
 }
 
@@ -346,7 +346,7 @@ export default function ReferralBlock({ referral, apiUrl }) {
               <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                 <span className="inline-flex w-5 h-5 rounded-md bg-orange-100 text-orange-600 text-xs font-extrabold items-center justify-center">P</span>
                 Find a provider
-                <span className="text-xs text-gray-400 font-normal">— click a card for details</span>
+                <span className="text-xs text-gray-400 font-normal">click a card for details</span>
               </p>
 
               {loadingProviders ? (

@@ -313,7 +313,7 @@ export default function UserProfilePanel({ open, onClose, apiUrl, auth0User }) {
                     <option value="other">Other</option>
                   </select>
                 </Field>
-                <Field label={`Age${age ? ` — ${age} years` : ''}`} half>
+                <Field label={`Age${age ? ` (${age} years)` : ''}`} half>
                   <input type="text" value={age} readOnly placeholder="Auto-calculated from DOB"
                     className={`${inputCls} bg-gray-100 text-gray-500 cursor-default`}/>
                 </Field>
@@ -511,7 +511,7 @@ export default function UserProfilePanel({ open, onClose, apiUrl, auth0User }) {
                   </p>
                 )}
 
-                <p className="text-xs text-gray-400 mt-2">Stored locally in your browser only — never uploaded to a server.</p>
+                <p className="text-xs text-gray-400 mt-2">Stored locally in your browser only, never uploaded to a server.</p>
               </div>
             </section>
 

@@ -101,7 +101,7 @@ function LineChart({ data, label }) {
       return (
         <div className="mt-3">
           <p className="text-xs text-gray-400 mb-2">{label}</p>
-          <div className="flex items-center justify-center h-24 text-sm text-gray-400">Only one data point — log more entries to see the trend.</div>
+          <div className="flex items-center justify-center h-24 text-sm text-gray-400">Only one data point. Log more entries to see the trend.</div>
         </div>
       )
     }
@@ -412,8 +412,8 @@ function MiniBodyMap({ regionLevels }) {
   return (
     <div className="flex gap-3 mt-2">
       {['back', 'front'].map(s => (
-        <div key={s} className="relative" style={{ width: Math.round(320 * MINI_SCALE), height: Math.round(480 * MINI_SCALE), overflow: 'hidden', flexShrink: 0 }}>
-          <div style={{ transform: `scale(${MINI_SCALE})`, transformOrigin: 'top left', width: `${Math.round(100 / MINI_SCALE)}%`, pointerEvents: 'none' }}>
+        <div key={s} style={{ width: Math.round(320 * MINI_SCALE), height: Math.round(480 * MINI_SCALE), overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+          <div style={{ position: 'absolute', left: '50%', top: 0, width: `${Math.round(100 / MINI_SCALE)}%`, transform: `translateX(-50%) scale(${MINI_SCALE})`, transformOrigin: 'top center', pointerEvents: 'none' }}>
             <BodyMap regionLevels={regionLevels} side={s} gender="male"/>
           </div>
         </div>
@@ -516,7 +516,7 @@ function SymptomForm({ onSave, onCancel }) {
       <div>
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium text-gray-500">
-            Tap body areas {selectedIds.length > 0 ? `(${selectedIds.length} selected)` : '— select at least one'}
+            Tap body areas {selectedIds.length > 0 ? `(${selectedIds.length} selected)` : '(select at least one)'}
           </span>
           <div className="flex rounded-lg overflow-hidden border border-gray-200 text-xs">
             {['front','back'].map(s => (
@@ -968,14 +968,14 @@ export default function TrackerPage() {
               return (
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-3 text-center">
-                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Avg pain — exercise days</p>
+                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Avg pain on exercise days</p>
                     <p className={`text-2xl font-extrabold ${correlationInsight.exercisePain != null ? 'text-indigo-600' : 'text-gray-300'}`}>
                       {correlationInsight.exercisePain != null ? `${correlationInsight.exercisePain}/10` : '—'}
                     </p>
                     <p className="text-[11px] text-gray-400 mt-0.5">{correlationInsight.exDayCount} day{correlationInsight.exDayCount !== 1 ? 's' : ''}</p>
                   </div>
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-3 text-center">
-                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Avg pain — rest days</p>
+                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Avg pain on rest days</p>
                     <p className={`text-2xl font-extrabold ${correlationInsight.restPain != null ? 'text-rose-500' : 'text-gray-300'}`}>
                       {correlationInsight.restPain != null ? `${correlationInsight.restPain}/10` : '—'}
                     </p>

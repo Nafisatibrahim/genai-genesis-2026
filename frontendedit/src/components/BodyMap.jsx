@@ -48,7 +48,7 @@ export default function BodyMap({
 
   return (
     <div
-      className="w-full max-w-sm mx-auto select-none"
+      className="w-full select-none flex justify-center overflow-hidden"
       role="img"
       aria-label={`Body map ${side} view - tap a region`}
     >
