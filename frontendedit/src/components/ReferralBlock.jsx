@@ -433,30 +433,10 @@ export default function ReferralBlock({ referral, apiUrl }) {
                   <CoverageChecklist coverage={coverage}/>
                 )}
 
-                {/* Insurer + Plan selectors */}
-                <div className="pt-3 border-t border-gray-100 space-y-3">
-                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400">Your insurance plan</p>
-                  <div className="flex flex-wrap gap-3">
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-medium text-gray-500">Insurer</label>
-                      <select value={selectedInsurer} onChange={e => { setSelectedInsurer(e.target.value); setSelectedPlan('') }} className={selectCls}>
-                        <option value="">None</option>
-                        {insurers.map(i => <option key={i.slug} value={i.slug}>{i.name}</option>)}
-                      </select>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-medium text-gray-500">Plan</label>
-                      <select value={selectedPlan} onChange={e => setSelectedPlan(e.target.value)}
-                        disabled={!selectedInsurer || plans.length === 0} className={selectCls}>
-                        <option value="">None</option>
-                        {plans.map(p => <option key={p.slug} value={p.slug}>{p.name}</option>)}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Cost estimate summary */}
-                  {selectedPlan && (
-                    costEstimate ? (
+                {/* Cost estimate from profile plan (auto-populated) */}
+                {selectedPlan && (
+                  <div className="pt-3 border-t border-gray-100">
+                    {costEstimate ? (
                       <div className="bg-indigo-50 rounded-xl px-4 py-3 border border-indigo-100">
                         <p className="text-sm text-indigo-800 font-medium leading-relaxed">
                           Your plan covers about <span className="font-bold">{costEstimate.coverage_percent}%</span> of eligible costs; you pay the rest out of pocket
@@ -467,13 +447,9 @@ export default function ReferralBlock({ referral, apiUrl }) {
                       </div>
                     ) : (
                       <p className="text-sm text-gray-500 italic">Check your plan for coverage details.</p>
-                    )
-                  )}
-
-                  <p className="text-xs text-gray-400">
-                    Selecting your plan unlocks AI explanations on each provider card. Final coverage is determined by your insurer.
-                  </p>
-                </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </>
