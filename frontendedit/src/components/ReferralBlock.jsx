@@ -395,32 +395,68 @@ export default function ReferralBlock({ referral, apiUrl }) {
               <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
                 <span className="inline-flex w-5 h-5 rounded-md bg-indigo-100 text-indigo-600 text-xs font-extrabold items-center justify-center">$</span>
                 <p className="text-sm font-bold text-gray-700">Coverage</p>
+                {selectedPlan && (
+                  <span className="ml-auto text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
+                    Plan loaded
+                  </span>
+                )}
               </div>
 
               <div className="px-5 py-4 space-y-4">
-                {/* General coverage copy + checklist */}
-                {loadingCoverage ? (
-                  <p className="text-gray-500 text-sm">Loading coverage info…</p>
-                ) : (
-                  <CoverageChecklist coverage={coverage}/>
-                )}
-
-                {/* Cost estimate from profile plan (auto-populated) */}
-                {selectedPlan && (
-                  <div className="pt-3 border-t border-gray-100">
-                    {costEstimate ? (
-                      <div className="bg-indigo-50 rounded-xl px-4 py-3 border border-indigo-100">
-                        <p className="text-sm text-indigo-800 font-medium leading-relaxed">
-                          Your plan covers about <span className="font-bold">{costEstimate.coverage_percent}%</span> of eligible costs; you pay the rest out of pocket
-                          {costEstimate.you_pay != null ? (
-                            <span className="text-indigo-600"> (~${costEstimate.you_pay} per visit)</span>
-                          ) : null}.
-                        </p>
-                      </div>
+                {!selectedPlan ? (
+                  /* No plan saved — show generic info + prompt */
+                  <>
+                    {loadingCoverage ? (
+                      <p className="text-gray-500 text-sm">Loading coverage info…</p>
                     ) : (
-                      <p className="text-sm text-gray-500 italic">Check your plan for coverage details.</p>
+                      <CoverageChecklist coverage={coverage}/>
                     )}
-                  </div>
+                    <div className="flex items-start gap-2.5 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3">
+                      <svg className="w-4 h-4 text-indigo-500 flex-none mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
+                      </svg>
+                      <p className="text-xs text-indigo-700 leading-relaxed">
+                        <strong>Get a personalised estimate.</strong> Add your insurance plan via the Profile button in the top navigation to see exactly what your plan covers for this type of care.
+                      </p>
+                    </div>
+                  </>
+                ) : costEstimate ? (
+                  /* Plan loaded + cost estimate available — lead with personalised data */
+                  <>
+                    <div className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-xl border border-indigo-100 px-4 py-4 space-y-2">
+                      <p className="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-1">Your plan estimate</p>
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-3xl font-extrabold text-indigo-700">{costEstimate.coverage_percent}%</span>
+                        <span className="text-sm text-indigo-600 font-medium">covered by your plan</span>
+                      </div>
+                      {costEstimate.you_pay != null && (
+                        <p className="text-sm text-gray-700">
+                          Your estimated out-of-pocket cost is approximately{' '}
+                          <span className="font-bold text-gray-900">${costEstimate.you_pay} per visit</span>.
+                        </p>
+                      )}
+                      {costEstimate.annual_limit && (
+                        <p className="text-xs text-indigo-500 mt-1">Annual limit: {costEstimate.annual_limit}</p>
+                      )}
+                    </div>
+                    <div className="pt-1">
+                      <CoverageChecklist coverage={coverage}/>
+                    </div>
+                  </>
+                ) : (
+                  /* Plan loaded but no specific estimate */
+                  <>
+                    <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
+                      <p className="text-sm text-amber-800 leading-relaxed">
+                        We do not have specific coverage data for your saved plan. Contact your insurer directly for exact details.
+                      </p>
+                    </div>
+                    {loadingCoverage ? (
+                      <p className="text-gray-500 text-sm">Loading coverage info…</p>
+                    ) : (
+                      <CoverageChecklist coverage={coverage}/>
+                    )}
+                  </>
                 )}
               </div>
             </div>
