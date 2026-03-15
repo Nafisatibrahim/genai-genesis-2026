@@ -6,6 +6,7 @@ import './index.css'
 import App from './App.jsx'
 import PosturePage from './pages/PosturePage.jsx'
 import TrackerPage from './pages/TrackerPage.jsx'
+import ContactPage from './pages/ContactPage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/"        element={<App />} />
           <Route path="/posture" element={<PosturePage />} />
           <Route path="/tracker" element={<TrackerPage />} />
+          <Route path="/contact" element={<ContactPage />} />
         </Routes>
       </BrowserRouter>
     </Auth0Provider>

@@ -76,7 +76,7 @@ function Navbar({ onTryClick, onProfileClick }) {
     { label: 'Squat Tracker', to: '/posture' },
     { label: 'Game',            href: '/game/index.html', external: true },
     { label: 'GitHub',          href: GITHUB_URL, external: true },
-    { label: 'Contact',         href: '#contact' },
+    { label: 'Contact',         to: '/contact' },
   ]
 
   return (
