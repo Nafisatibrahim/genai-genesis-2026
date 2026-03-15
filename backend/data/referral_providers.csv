@@ -8,3 +8,23 @@ m1,Sarah Brown,Relax & Restore RMT,massage,300 Dundas St,M5B 2R2,43.66,-79.38,41
 m2,Chris Taylor,Urban Massage Therapy,massage,500 Yonge St,M4Y 2B5,43.67,-79.38,416-555-0302,"English,French",true,Mon–Fri,80,manulife
 u1,City General ER,City General Hospital,urgent,1 Hospital Dr,M5G 1X8,43.66,-79.39,416-555-9999,"English,French",true,24/7,,
 u2,Walk-in Urgent Care,Central Urgent Care,urgent,2 Emergency Way,M5G 2Y9,43.65,-79.40,416-555-8888,English,true,7am–11pm,,
+p4,Dr. Yuki Tanaka,East Side Physio,physio,88 Church St,M5C 2G2,43.65,-79.37,416-555-0104,"English,Japanese",true,Mon–Fri 9–5,115,"sunlife,manulife,greatwest"
+p5,Lisa Park,Movement Plus Physiotherapy,physio,120 Spadina Ave,M5V 2L2,43.64,-79.40,416-555-0105,"English,Korean",false,Tue–Sat,105,sunlife
+p6,Michael Torres,Active Rehab Centre,physio,250 Front St W,M5V 2W6,43.64,-79.39,416-555-0106,"English,Spanish",true,Mon–Fri 8–4,118,"sunlife,manulife"
+p7,Emily Watson,Lakeshore Physio & Sport,physio,100 Queens Quay E,M5E 1A3,43.64,-79.37,416-555-0107,English,true,Mon–Sat,112,greatwest
+p8,Ahmed Hassan,Downtown Sports Physio,physio,55 Harbour Sq,M5J 2L1,43.64,-79.38,416-555-0108,"English,Arabic",false,Weekdays,98,"sunlife,manulife,greatwest"
+p9,Nina Patel,Wellness Physiotherapy Clinic,physio,70 Bond St,M5B 1X3,43.65,-79.38,416-555-0109,"English,Hindi",true,Mon–Fri 9–6,108,sunlife
+c3,Dr. Amira Hassan,Back to Balance Chiropractic,chiro,55 Wellington St W,M5V 1E3,43.65,-79.38,416-555-0203,"English,Arabic",true,Mon–Thu,88,"sunlife,manulife"
+c4,Dr. Ryan O'Brien,Core Wellness Chiro,chiro,77 Richmond St W,M5H 2C9,43.65,-79.39,416-555-0204,English,false,Mon–Fri 8–4,92,greatwest
+c5,Dr. Sofia Martinez,Spine Care Chiropractic,chiro,15 York St,M5J 0A3,43.64,-79.38,416-555-0205,"English,Spanish",true,Mon–Sat,86,"sunlife,manulife,greatwest"
+c6,Dr. David Kim,Precision Chiropractic,chiro,180 Bloor St E,M4W 3R2,43.67,-79.39,416-555-0206,"English,Korean",true,Mon–Fri,94,sunlife
+c7,Dr. Jennifer Wong,Downtown Chiro Health,chiro,330 Bay St,M5H 2S8,43.65,-79.38,416-555-0207,"English,Mandarin",false,Tue–Sat,89,manulife
+m3,Priya Patel,Healing Hands RMT,massage,90 Adelaide St W,M5H 3V9,43.65,-79.38,416-555-0303,"English,Hindi",true,Mon–Sat,88,"sunlife,manulife,greatwest"
+m4,David Kim,Sport & Recovery Massage,massage,150 John St,M5V 3T2,43.64,-79.39,416-555-0304,"English,Korean",true,Wed–Sun,102,manulife
+m5,Emma Wilson,Serenity Massage Studio,massage,25 King St W,M5H 1A1,43.65,-79.38,416-555-0305,English,false,Mon–Fri,85,sunlife
+m6,Carlos Mendez,Therapeutic Touch RMT,massage,220 Yonge St,M5B 2H1,43.65,-79.38,416-555-0306,"English,Spanish",true,Tue–Sat,96,"sunlife,greatwest"
+m7,Mei Lin,East End Massage Therapy,massage,400 Broadview Ave,M4M 2G8,43.67,-79.35,416-555-0307,"English,Mandarin",true,Mon–Fri 10–7,90,"sunlife,manulife"
+u3,North Toronto Urgent Care,North Toronto Urgent,urgent,10 Eglinton Ave E,M4P 1A6,43.71,-79.40,416-555-7777,English,true,8am–10pm,,
+u4,West End Emergency Clinic,West End Emergency,urgent,2500 Bloor St W,M6P 4A2,43.65,-79.47,416-555-6666,"English,French",true,7am–midnight,,
+u5,Scarborough Urgent Care,Scarborough Urgent,urgent,2900 Eglinton Ave E,M1J 2E5,43.74,-79.23,416-555-5555,English,true,24/7,,
+u6,Etobicoke Walk-in & Urgent,Etobicoke Urgent Care,urgent,100 Humber College Blvd,M9W 5L7,43.73,-79.61,416-555-4444,English,true,6am–11pm,,
