@@ -168,7 +168,7 @@ def referral_cost_estimate(
 
 @app.post("/referral/explain")
 async def referral_explain(body: ExplainRequest):
-    """Return a short AI explanation: why this care/provider fits the user's plan, or why not."""
+    """Return a short AI explanation: why this care (or this specific provider) fits the user's plan, or why not. Send provider_id to get why/why not for that provider."""
     try:
         explanation = await run_explain(
             provider_type=body.provider_type,

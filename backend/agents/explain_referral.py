@@ -71,11 +71,17 @@ def build_explain_prompt(
         parts.append("No specific provider selected; explain in terms of this type of care and the plan.")
     if cost_estimate:
         c = cost_estimate
+        pct = c.get("coverage_percent") or 0
+        you_pay = c.get("you_pay", 0)
         parts.append(
-            f"Cost summary: visit ${c.get('cost_per_visit', 0):.0f}, plan covers {c.get('coverage_percent', 0)}%, "
-            f"you pay about ${c.get('you_pay', 0):.0f} per visit; annual limit ${c.get('annual_limit_dollars') or 0}."
+            f"Cost summary: visit ${c.get('cost_per_visit', 0):.0f}, plan covers {pct}%, "
+            f"you pay about ${you_pay:.0f} per visit out of pocket; annual limit ${c.get('annual_limit_dollars') or 0}."
         )
-        parts.append("Include this cost summary in your answer.")
+        parts.append("You MUST state clearly: (1) Their plan covers this care and covers [X]% of eligible costs. (2) They pay the rest out of pocket (about $[you_pay] per visit). Use the numbers above.")
+    else:
+        # No cost estimate but we may have coverage_percent from benefits
+        if benefits_text and "coverage" in benefits_text.lower():
+            parts.append("You MUST state clearly: whether their plan covers this care, what percentage the plan covers (from the benefits above), and that they pay the remainder out of pocket. Exact per-visit amount depends on the provider.")
     if question == "why":
         parts.append("In 2–3 short sentences, explain why this provider (if given) or this type of care is a good fit—focus on the provider when one is given.")
     else:
@@ -83,7 +89,11 @@ def build_explain_prompt(
     return "\n".join(parts)
 
 
-EXPLAIN_SYSTEM = """You are the FlexCare referral assistant. Your job is to explain why a specific provider (name and clinic) is a good fit for the user—or why they might not be—based on that provider: e.g. accepts their insurer, languages, direct billing, availability. You may mention insurance briefly only when it is about the provider (e.g. "they direct-bill your plan"). Do not give a general explanation of the user's insurance plan. Focus on this provider. Answer in plain language, 2–3 sentences. Do not promise exact coverage—final coverage is determined by the insurer. Be concise and practical."""
+EXPLAIN_SYSTEM = """You are the FlexCare referral assistant. You help users understand coverage and providers.
+
+When explaining coverage, you MUST clearly state: (1) Whether their plan covers this type of care (yes/no). (2) What percentage the plan covers (e.g. "Your plan covers 70%"). (3) That they pay the rest out of pocket (e.g. "you pay the remaining 30% out of pocket" or "you pay about $X per visit"). Use the cost and coverage numbers you are given.
+
+When a specific provider is given, also explain why that provider is a good fit or not (e.g. direct billing, languages, insurer match). Keep the answer to 2–4 sentences. End with a brief disclaimer that final coverage is determined by the insurer. Be clear and practical."""
 
 
 from backend.schemas.outputs import ExplainOutput
@@ -122,6 +132,11 @@ async def run_explain(
     provider = None
     if provider_id:
         provider = get_provider_by_id(provider_id)
+        if not provider:
+            return "We couldn't find that provider. Please check the selection and try again."
+        # When explaining a specific provider, ensure we only use one of the same discipline
+        if provider.get("provider_type") != provider_type:
+            return "That provider doesn't match this type of care. Please pick a provider from the list above."
 
     cost_estimate = estimate_cost(plan_slug, provider_type, provider_id=provider_id)
 
