@@ -9,10 +9,6 @@ const PROVIDER_TYPE_LABELS = {
   none:    'None',
 }
 
-const selectCls =
-  'rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800 ' +
-  'focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition disabled:opacity-50'
-
 /* ── Provider attribute reasons ─────────────────────────── */
 function providerPros(provider) {
   const pros = []
@@ -236,9 +232,7 @@ export default function ReferralBlock({ referral, apiUrl }) {
   const [loadingCoverage,  setLoadingCoverage]  = useState(false)
   const [expandedId,       setExpandedId]       = useState(null)
 
-  /* Insurer / plan */
-  const [insurers,        setInsurers]        = useState([])
-  const [plans,           setPlans]           = useState([])
+  /* Plan (auto-populated from profile) */
   const [selectedInsurer, setSelectedInsurer] = useState('')
   const [selectedPlan,    setSelectedPlan]    = useState('')
   const [costEstimate,    setCostEstimate]    = useState(null)
@@ -267,28 +261,6 @@ export default function ReferralBlock({ referral, apiUrl }) {
       .catch(() => setCoverage(null))
       .finally(() => setLoadingCoverage(false))
   }, [showProvidersAndCoverage, referral?.provider_type, apiUrl])
-
-  /* Fetch insurers */
-  useEffect(() => {
-    if (!apiUrl) return
-    fetch(`${apiUrl}/referral/insurers`)
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(d => setInsurers(d.insurers || []))
-      .catch(() => setInsurers([]))
-  }, [apiUrl])
-
-  /* Fetch plans when insurer changes */
-  useEffect(() => {
-    if (!apiUrl || !selectedInsurer) { setPlans([]); setSelectedPlan(''); return }
-    fetch(`${apiUrl}/referral/plans?insurer_slug=${encodeURIComponent(selectedInsurer)}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(d => {
-        const list = d.plans || []
-        setPlans(list)
-        setSelectedPlan(prev => list.some(p => p.slug === prev) ? prev : '')
-      })
-      .catch(() => setPlans([]))
-  }, [apiUrl, selectedInsurer])
 
   /* Prefill insurer + plan from saved profile */
   useEffect(() => {
