@@ -196,6 +196,154 @@ function LineChart({ data, label }) {
   )
 }
 
+/* ─── Correlation overlay chart ─────────────────────────────── */
+function CorrelationChart({ data }) {
+  const [hovered, setHovered] = useState(null)
+
+  if (!data || data.length < 2) {
+    return (
+      <div className="flex flex-col items-center justify-center h-28 text-gray-400 text-sm text-center gap-1 px-6">
+        <svg className="w-8 h-8 text-gray-200 mb-1" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zm9.75-9.75c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v16.5c0 .621-.504 1.125-1.125 1.125h-2.25A1.125 1.125 0 0112.75 19.875V3.375zm-9 12c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-2.25A1.125 1.125 0 013 19.875v-4.5z"/>
+        </svg>
+        Log symptoms and exercises on multiple days to see how they correlate.
+      </div>
+    )
+  }
+
+  const W = 700
+  const H = 200
+  const PAD = { top: 18, right: 22, bottom: 32, left: 34 }
+  const innerW = W - PAD.left - PAD.right
+  const innerH = H - PAD.top - PAD.bottom
+  const EX_H = 28
+  const PAIN_H = innerH - EX_H - 10
+
+  const painValues = data.filter(d => d.pain != null).map(d => d.pain)
+  const maxEx = Math.max(...data.map(d => d.exercises), 1)
+  const yMinP = Math.max(0, Math.min(...painValues, 4) - 1)
+  const yMaxP = Math.min(10, Math.max(...painValues, 6) + 1)
+  const yRangeP = yMaxP - yMinP || 1
+
+  const xStep = data.length > 1 ? innerW / (data.length - 1) : innerW
+  const pts = data.map((d, i) => {
+    const x = PAD.left + i * xStep
+    return {
+      x,
+      painY: d.pain != null ? PAD.top + PAIN_H - ((d.pain - yMinP) / yRangeP) * PAIN_H : null,
+      exH: (d.exercises / maxEx) * EX_H,
+      exBaseY: PAD.top + PAIN_H + 10,
+      label: d.dateLabel,
+      pain: d.pain,
+      exercises: d.exercises,
+    }
+  })
+
+  const painPts = pts.filter(p => p.painY != null)
+  const polyline = painPts.map(p => `${p.x},${p.painY}`).join(' ')
+  const areaPath = painPts.length >= 2
+    ? `M${painPts[0].x},${PAD.top + PAIN_H} ` + painPts.map(p => `L${p.x},${p.painY}`).join(' ') + ` L${painPts[painPts.length-1].x},${PAD.top + PAIN_H} Z`
+    : null
+
+  const half = Math.ceil(painPts.length / 2)
+  const avgA = painPts.slice(0, half).reduce((s, p) => s + p.pain, 0) / (half || 1)
+  const avgB = painPts.slice(half).reduce((s, p) => s + p.pain, 0) / ((painPts.length - half) || 1)
+  const trend = painPts.length >= 2 ? (avgB < avgA - 0.4 ? 'imp' : avgB > avgA + 0.4 ? 'wor' : 'sta') : 'sta'
+  const lineColor = trend === 'imp' ? '#10b981' : trend === 'wor' ? '#ef4444' : '#6366f1'
+  const areaFill  = trend === 'imp' ? '#10b98114' : trend === 'wor' ? '#ef444414' : '#6366f114'
+
+  const yTicks = [...new Set([yMinP, Math.round((yMinP + yMaxP) / 2), yMaxP])]
+
+  const labelStep = pts.length <= 8 ? 1 : pts.length <= 14 ? 2 : Math.ceil(pts.length / 7)
+  const barW = Math.min(xStep * 0.55, 14)
+
+  return (
+    <div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 200, overflow: 'visible' }} onMouseLeave={() => setHovered(null)}>
+        {/* Grid */}
+        {yTicks.map(t => {
+          const y = PAD.top + PAIN_H - ((t - yMinP) / yRangeP) * PAIN_H
+          return (
+            <g key={t}>
+              <line x1={PAD.left} y1={y} x2={PAD.left + innerW} y2={y} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4 3"/>
+              <text x={PAD.left - 6} y={y + 4} textAnchor="end" fontSize="10" fill="#9ca3af">{t}</text>
+            </g>
+          )
+        })}
+
+        {/* Divider between pain and exercise area */}
+        <line x1={PAD.left} y1={PAD.top + PAIN_H + 6} x2={PAD.left + innerW} y2={PAD.top + PAIN_H + 6} stroke="#f3f4f6" strokeWidth="1.5"/>
+
+        {/* Area fill */}
+        {areaPath && <path d={areaPath} fill={areaFill}/>}
+
+        {/* Pain line */}
+        {painPts.length >= 2 && (
+          <polyline points={polyline} fill="none" stroke={lineColor} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"/>
+        )}
+
+        {/* Exercise bars */}
+        {pts.map((p, i) => p.exercises > 0 && (
+          <rect key={`ex${i}`}
+            x={p.x - barW / 2} y={p.exBaseY + EX_H - p.exH}
+            width={barW} height={p.exH}
+            rx="2" fill="#10b981" opacity="0.75"
+          />
+        ))}
+
+        {/* Pain dots + hover regions */}
+        {pts.map((p, i) => (
+          <g key={i} onMouseEnter={() => setHovered(i)} style={{ cursor: 'default' }}>
+            <rect x={p.x - xStep / 2} y={PAD.top} width={xStep} height={innerH} fill="transparent"/>
+            {p.painY != null && (
+              <circle cx={p.x} cy={p.painY} r={hovered === i ? 5 : 3.5} fill={lineColor} stroke="white" strokeWidth="2"/>
+            )}
+          </g>
+        ))}
+
+        {/* Tooltip */}
+        {hovered !== null && (() => {
+          const p = pts[hovered]
+          const lines = [
+            p.pain != null ? `Pain: ${p.pain.toFixed(1)}/10` : 'No pain log',
+            p.exercises > 0 ? `${p.exercises} exercise session${p.exercises > 1 ? 's' : ''}` : 'Rest day',
+          ]
+          const tipW = 118
+          const tipH = 52
+          const tx = Math.min(Math.max(p.x - tipW / 2, 4), W - tipW - 4)
+          const ty = Math.max(PAD.top, (p.painY ?? PAD.top + PAIN_H) - tipH - 10)
+          return (
+            <g>
+              <rect x={tx} y={ty} width={tipW} height={tipH} rx="6" fill="#1f2937"/>
+              <text x={tx + tipW / 2} y={ty + 14} textAnchor="middle" fontSize="10" fill="#9ca3af">{p.label}</text>
+              {lines.map((l, li) => (
+                <text key={li} x={tx + tipW / 2} y={ty + 29 + li * 14} textAnchor="middle" fontSize="11" fill="white" fontWeight="600">{l}</text>
+              ))}
+            </g>
+          )
+        })()}
+
+        {/* X labels */}
+        {pts.filter((_, i) => i % labelStep === 0 || i === pts.length - 1).map((p, i) => (
+          <text key={i} x={p.x} y={H - 2} textAnchor="middle" fontSize="9" fill="#9ca3af">{p.label}</text>
+        ))}
+      </svg>
+
+      {/* Legend */}
+      <div className="flex items-center gap-4 mt-1 px-1">
+        <div className="flex items-center gap-1.5">
+          <span className="inline-block w-8 h-0.5 rounded-full" style={{ background: lineColor }}/>
+          <span className="text-[11px] text-gray-400 font-medium">Pain level</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="inline-block w-3 h-3 rounded-sm bg-emerald-400 opacity-80"/>
+          <span className="text-[11px] text-gray-400 font-medium">Exercise sessions</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ─── Pain level badge ──────────────────────────────────────── */
 function PainBadge({ level }) {
   const colors = [
@@ -551,6 +699,67 @@ export default function TrackerPage() {
     }))
   }, [exerciseLogs, periodMs, period])
 
+  const correlationChartData = useMemo(() => {
+    const sRaw = filteredSymptoms
+    const eRaw = filteredExercises
+    const sGroups = {}
+    sRaw.forEach(l => {
+      const d = l.date.slice(0, 10)
+      if (!sGroups[d]) sGroups[d] = []
+      sGroups[d].push(l.painLevel)
+    })
+    const eGroups = {}
+    eRaw.forEach(l => {
+      const d = l.date.slice(0, 10)
+      eGroups[d] = (eGroups[d] || 0) + 1
+    })
+    const allDays = [...new Set([...Object.keys(sGroups), ...Object.keys(eGroups)])].sort()
+    if (allDays.length < 2) return []
+    if (period === 'year') {
+      const months = {}
+      allDays.forEach(d => {
+        const m = d.slice(0, 7)
+        if (!months[m]) months[m] = { pain: [], exercises: 0 }
+        if (sGroups[d]) months[m].pain.push(...sGroups[d])
+        months[m].exercises += eGroups[d] || 0
+      })
+      return Object.keys(months).sort().map(m => ({
+        dateLabel: new Date(m + '-01').toLocaleDateString('en-CA', { month: 'short' }),
+        pain: months[m].pain.length ? Math.round(months[m].pain.reduce((s, v) => s + v, 0) / months[m].pain.length * 10) / 10 : null,
+        exercises: months[m].exercises,
+      }))
+    }
+    return allDays.map(d => ({
+      dateLabel: new Date(d).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }),
+      pain: sGroups[d] ? Math.round(sGroups[d].reduce((s, v) => s + v, 0) / sGroups[d].length * 10) / 10 : null,
+      exercises: eGroups[d] || 0,
+    }))
+  }, [filteredSymptoms, filteredExercises, period])
+
+  const correlationInsight = useMemo(() => {
+    const sGroups = {}
+    filteredSymptoms.forEach(l => {
+      const d = l.date.slice(0, 10)
+      if (!sGroups[d]) sGroups[d] = []
+      sGroups[d].push(l.painLevel)
+    })
+    const eDates = new Set(filteredExercises.map(l => l.date.slice(0, 10)))
+    const avgPainForDays = days => {
+      if (!days.length) return null
+      const total = days.reduce((s, d) => s + sGroups[d].reduce((a, b) => a + b, 0) / sGroups[d].length, 0)
+      return Math.round((total / days.length) * 10) / 10
+    }
+    const symptomDays = Object.keys(sGroups)
+    const exDays   = symptomDays.filter(d => eDates.has(d))
+    const restDays = symptomDays.filter(d => !eDates.has(d))
+    return {
+      exercisePain: avgPainForDays(exDays),
+      restPain: avgPainForDays(restDays),
+      exDayCount: exDays.length,
+      restDayCount: restDays.length,
+    }
+  }, [filteredSymptoms, filteredExercises])
+
   /* ── Handlers ── */
   const addSymptom = useCallback((entry) => {
     const updated = [entry, ...symptomLogs]
@@ -710,6 +919,58 @@ export default function TrackerPage() {
             </div>
           ))}
         </div>
+
+        {/* ── Correlation section ── */}
+        {(filteredSymptoms.length > 0 || filteredExercises.length > 0) && (
+          <div className="mb-6 space-y-4">
+
+            {/* Insight stat cards */}
+            {(correlationInsight.exercisePain != null || correlationInsight.restPain != null) && (() => {
+              const diff = correlationInsight.exercisePain != null && correlationInsight.restPain != null
+                ? correlationInsight.restPain - correlationInsight.exercisePain
+                : null
+              const verdict = diff == null ? null
+                : diff >= 1   ? { label: 'Exercise is helping', cls: 'text-emerald-700 bg-emerald-50 border-emerald-100', icon: '✓' }
+                : diff >= 0.3 ? { label: 'Slight benefit observed', cls: 'text-emerald-600 bg-emerald-50 border-emerald-100', icon: '↓' }
+                : diff <= -1  ? { label: 'Pain higher on exercise days', cls: 'text-amber-700 bg-amber-50 border-amber-100', icon: '!' }
+                :               { label: 'No clear pattern yet', cls: 'text-gray-600 bg-gray-50 border-gray-200', icon: '→' }
+              return (
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-3 text-center">
+                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Avg pain — exercise days</p>
+                    <p className={`text-2xl font-extrabold ${correlationInsight.exercisePain != null ? 'text-indigo-600' : 'text-gray-300'}`}>
+                      {correlationInsight.exercisePain != null ? `${correlationInsight.exercisePain}/10` : '—'}
+                    </p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">{correlationInsight.exDayCount} day{correlationInsight.exDayCount !== 1 ? 's' : ''}</p>
+                  </div>
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-3 text-center">
+                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Avg pain — rest days</p>
+                    <p className={`text-2xl font-extrabold ${correlationInsight.restPain != null ? 'text-rose-500' : 'text-gray-300'}`}>
+                      {correlationInsight.restPain != null ? `${correlationInsight.restPain}/10` : '—'}
+                    </p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">{correlationInsight.restDayCount} day{correlationInsight.restDayCount !== 1 ? 's' : ''}</p>
+                  </div>
+                  {verdict && (
+                    <div className={`rounded-2xl border shadow-sm px-4 py-3 text-center flex flex-col items-center justify-center gap-1 ${verdict.cls}`}>
+                      <p className="text-lg font-extrabold">{verdict.icon}</p>
+                      <p className="text-xs font-semibold leading-tight">{verdict.label}</p>
+                      {diff != null && <p className="text-[11px] opacity-70">{Math.abs(diff).toFixed(1)} pt difference</p>}
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
+
+            {/* Overlay chart */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-sm font-bold text-gray-800">Exercise vs. Pain correlation</p>
+                <span className="text-[11px] text-gray-400">{PERIOD_LABELS[period]}</span>
+              </div>
+              <CorrelationChart data={correlationChartData}/>
+            </div>
+          </div>
+        )}
 
         {/* ── Charts row ── */}
         {(symptomChartData.length > 0 || exerciseChartData.length > 0) && (
