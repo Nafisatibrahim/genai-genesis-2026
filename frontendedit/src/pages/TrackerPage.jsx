@@ -53,7 +53,6 @@ function groupByDay(logs, periodMs) {
 function BarChart({ data, color = '#6366f1', label }) {
   if (!data.length) return null
   const max = Math.max(...data.map(d => d.value), 1)
-  const W = 100 / data.length
 
   return (
     <div className="mt-3">
@@ -72,6 +71,127 @@ function BarChart({ data, color = '#6366f1', label }) {
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+/* ─── SVG Line chart for pain trend ────────────────────────── */
+function LineChart({ data, label }) {
+  if (!data || data.length < 2) {
+    if (data && data.length === 1) {
+      return (
+        <div className="mt-3">
+          <p className="text-xs text-gray-400 mb-2">{label}</p>
+          <div className="flex items-center justify-center h-24 text-sm text-gray-400">Only one data point — log more entries to see the trend.</div>
+        </div>
+      )
+    }
+    return null
+  }
+
+  const W = 600
+  const H = 140
+  const PAD = { top: 16, right: 20, bottom: 36, left: 30 }
+  const innerW = W - PAD.left - PAD.right
+  const innerH = H - PAD.top - PAD.bottom
+
+  const values = data.map(d => d.value)
+  const rawMin = Math.min(...values)
+  const rawMax = Math.max(...values)
+  const yMin = Math.max(0, rawMin - 1)
+  const yMax = Math.min(10, rawMax + 1)
+  const yRange = yMax - yMin || 1
+
+  const xStep = innerW / (data.length - 1)
+  const pts = data.map((d, i) => ({
+    x: PAD.left + i * xStep,
+    y: PAD.top + innerH - ((d.value - yMin) / yRange) * innerH,
+    label: d.dateLabel,
+    value: d.value,
+  }))
+
+  const polyline = pts.map(p => `${p.x},${p.y}`).join(' ')
+  const areaPath = `M${pts[0].x},${PAD.top + innerH} ` +
+    pts.map(p => `L${p.x},${p.y}`).join(' ') +
+    ` L${pts[pts.length-1].x},${PAD.top + innerH} Z`
+
+  const firstHalf = values.slice(0, Math.ceil(values.length / 2))
+  const secondHalf = values.slice(Math.ceil(values.length / 2))
+  const avgFirst  = firstHalf.reduce((s, v) => s + v, 0) / firstHalf.length
+  const avgSecond = secondHalf.reduce((s, v) => s + v, 0) / secondHalf.length
+  const trend = avgSecond < avgFirst - 0.4 ? 'improving' : avgSecond > avgFirst + 0.4 ? 'worsening' : 'stable'
+
+  const lineColor  = trend === 'improving' ? '#10b981' : trend === 'worsening' ? '#ef4444' : '#6366f1'
+  const areaColor  = trend === 'improving' ? '#10b98122' : trend === 'worsening' ? '#ef444422' : '#6366f122'
+  const dotColor   = lineColor
+  const trendLabel = trend === 'improving' ? '↓ Improving' : trend === 'worsening' ? '↑ Worsening' : '→ Stable'
+  const trendCls   = trend === 'improving' ? 'text-emerald-600 bg-emerald-50' : trend === 'worsening' ? 'text-red-600 bg-red-50' : 'text-indigo-600 bg-indigo-50'
+
+  const yTicks = [yMin, Math.round((yMin + yMax) / 2), yMax].filter((v, i, a) => a.indexOf(v) === i)
+
+  const [hovered, setHovered] = useState(null)
+
+  return (
+    <div className="mt-3">
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-xs text-gray-400">{label}</p>
+        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${trendCls}`}>{trendLabel}</span>
+      </div>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full"
+        style={{ height: 140, overflow: 'visible' }}
+        onMouseLeave={() => setHovered(null)}
+      >
+        {/* Grid lines */}
+        {yTicks.map(tick => {
+          const y = PAD.top + innerH - ((tick - yMin) / yRange) * innerH
+          return (
+            <g key={tick}>
+              <line x1={PAD.left} y1={y} x2={PAD.left + innerW} y2={y} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4 3"/>
+              <text x={PAD.left - 6} y={y + 4} textAnchor="end" fontSize="10" fill="#9ca3af">{tick}</text>
+            </g>
+          )
+        })}
+
+        {/* Area fill */}
+        <path d={areaPath} fill={areaColor}/>
+
+        {/* Line */}
+        <polyline points={polyline} fill="none" stroke={lineColor} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"/>
+
+        {/* Dots + hover targets */}
+        {pts.map((p, i) => (
+          <g key={i} onMouseEnter={() => setHovered(i)} style={{ cursor: 'default' }}>
+            <circle cx={p.x} cy={p.y} r="12" fill="transparent"/>
+            <circle cx={p.x} cy={p.y} r={hovered === i ? 5 : 3.5} fill={dotColor} stroke="white" strokeWidth="2"/>
+          </g>
+        ))}
+
+        {/* Tooltip */}
+        {hovered !== null && (() => {
+          const p = pts[hovered]
+          const bx = Math.min(Math.max(p.x - 40, 4), W - 100)
+          const by = p.y - 36
+          return (
+            <g>
+              <rect x={bx} y={by} width="88" height="22" rx="6" fill="#1f2937"/>
+              <text x={bx + 44} y={by + 15} textAnchor="middle" fontSize="11" fill="white" fontWeight="600">
+                {p.label}: {p.value}/10
+              </text>
+            </g>
+          )
+        })()}
+
+        {/* X-axis labels — show subset if many points */}
+        {pts.filter((_, i) => {
+          if (pts.length <= 8) return true
+          if (pts.length <= 14) return i % 2 === 0
+          return i % Math.ceil(pts.length / 7) === 0 || i === pts.length - 1
+        }).map((p, i) => (
+          <text key={i} x={p.x} y={H - 4} textAnchor="middle" fontSize="9" fill="#9ca3af">{p.label}</text>
+        ))}
+      </svg>
     </div>
   )
 }
@@ -596,8 +716,8 @@ export default function TrackerPage() {
           <div className="grid sm:grid-cols-2 gap-4 mb-8">
             {symptomChartData.length > 0 && (
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4">
-                <p className="text-sm font-bold text-gray-800">Pain level history</p>
-                <BarChart data={symptomChartData} color="#6366f1" label="Average pain level (1–10) per day"/>
+                <p className="text-sm font-bold text-gray-800">Pain level trend</p>
+                <LineChart data={symptomChartData} label="Average pain level (1–10)"/>
               </div>
             )}
             {exerciseChartData.length > 0 && (
