@@ -126,7 +126,7 @@ export default function ExerciseCapture({ exerciseName = 'exercise', onFramesCap
     <div className="rounded border border-slate-200 bg-slate-50 p-4 space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="font-medium text-slate-800">
-          Record & get feedback {exerciseName ? `— ${exerciseName}` : ''}
+          Record & get feedback {exerciseName ? `: ${exerciseName}` : ''}
         </h3>
         {onClose && (
           <button

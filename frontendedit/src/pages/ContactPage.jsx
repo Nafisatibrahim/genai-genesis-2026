@@ -55,7 +55,7 @@ export default function ContactPage() {
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-5xl mx-auto px-6 flex items-center justify-between h-16">
           <Link to="/" className="flex items-center">
-            <img src="/flexcare-logo-transparent.png" alt="FlexCare" className="h-16 w-auto" />
+            <img src="/flexcare-logo-transparent.png" alt="FlexCare" className="h-24 w-auto" />
           </Link>
           <nav className="flex items-center gap-1">
             <Link to="/"
@@ -143,7 +143,7 @@ export default function ContactPage() {
         <div className="mt-12 bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
           <h2 className="text-xl font-bold text-gray-900 mb-2">Get in touch</h2>
           <p className="text-gray-500 text-sm mb-6 max-w-md mx-auto">
-            Have a question, found a bug, or want to contribute? Open an issue on GitHub — we'd love to hear from you.
+            Have a question, found a bug, or want to contribute? Open an issue on GitHub. We would love to hear from you.
           </p>
           <a href={`${GITHUB_URL}/issues/new`} target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500

@@ -354,7 +354,7 @@ export default function PosturePage() {
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
           <Link to="/" className="flex items-center">
-            <img src="/flexcare-logo-transparent.png" alt="FlexCare" className="h-16 w-auto" />
+            <img src="/flexcare-logo-transparent.png" alt="FlexCare" className="h-24 w-auto" />
           </Link>
           <div className="flex items-center gap-2">
             <span className="hidden sm:inline text-sm text-gray-400 font-medium">AI Movement Coach</span>
@@ -513,7 +513,7 @@ export default function PosturePage() {
                 {[
                   {label:'Total reps',  val:repCount},
                   {label:'Good reps',   val:goodReps},
-                  {label:'Accuracy',    val:accuracy!=null?`${accuracy}%`:'—'},
+                  {label:'Accuracy',    val:accuracy!=null?`${accuracy}%`:'N/A'},
                 ].map(s=>(
                   <div key={s.label} className="bg-gray-50 rounded-xl p-3 text-center">
                     <p className="text-xl font-extrabold text-gray-900">{s.val}</p>

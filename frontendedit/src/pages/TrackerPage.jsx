@@ -621,12 +621,12 @@ function ExerciseForm({ onSave, onCancel }) {
       <div className="grid grid-cols-3 gap-3">
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-gray-500">Sets</span>
-          <input type="number" min="1" value={sets} onChange={e => setSets(e.target.value)} placeholder="—"
+          <input type="number" min="1" value={sets} onChange={e => setSets(e.target.value)} placeholder="0"
             className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"/>
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-gray-500">Reps</span>
-          <input type="number" min="1" value={reps} onChange={e => setReps(e.target.value)} placeholder="—"
+          <input type="number" min="1" value={reps} onChange={e => setReps(e.target.value)} placeholder="0"
             className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"/>
         </label>
         <label className="flex flex-col gap-1">
@@ -840,7 +840,7 @@ export default function TrackerPage() {
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
           <Link to="/" className="flex items-center">
-            <img src="/flexcare-logo-transparent.png" alt="FlexCare" className="h-16 w-auto" />
+            <img src="/flexcare-logo-transparent.png" alt="FlexCare" className="h-24 w-auto" />
           </Link>
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline text-sm font-semibold text-gray-700">Recovery Tracker</span>
@@ -924,7 +924,7 @@ export default function TrackerPage() {
             },
             {
               label: 'Avg pain level',
-              value: avgPain ? `${avgPain}/10` : '—',
+              value: avgPain ? `${avgPain}/10` : 'N/A',
               color: avgPain >= 7 ? 'text-red-600' : avgPain >= 4 ? 'text-orange-500' : 'text-emerald-600',
               bg: avgPain >= 7 ? 'bg-red-50' : avgPain >= 4 ? 'bg-orange-50' : 'bg-emerald-50',
               icon: (
@@ -935,7 +935,7 @@ export default function TrackerPage() {
             },
             {
               label: 'Trend',
-              value: painTrend === 'improving' ? '↓ Improving' : painTrend === 'worsening' ? '↑ Worsening' : painTrend === 'stable' ? '→ Stable' : '—',
+              value: painTrend === 'improving' ? '↓ Improving' : painTrend === 'worsening' ? '↑ Worsening' : painTrend === 'stable' ? '→ Stable' : 'N/A',
               color: painTrend === 'improving' ? 'text-emerald-600' : painTrend === 'worsening' ? 'text-red-600' : 'text-gray-500',
               bg: painTrend === 'improving' ? 'bg-emerald-50' : painTrend === 'worsening' ? 'bg-red-50' : 'bg-gray-50',
               icon: (
@@ -986,14 +986,14 @@ export default function TrackerPage() {
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-3 text-center">
                     <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Avg pain on exercise days</p>
                     <p className={`text-2xl font-extrabold ${correlationInsight.exercisePain != null ? 'text-indigo-600' : 'text-gray-300'}`}>
-                      {correlationInsight.exercisePain != null ? `${correlationInsight.exercisePain}/10` : '—'}
+                      {correlationInsight.exercisePain != null ? `${correlationInsight.exercisePain}/10` : 'N/A'}
                     </p>
                     <p className="text-[11px] text-gray-400 mt-0.5">{correlationInsight.exDayCount} day{correlationInsight.exDayCount !== 1 ? 's' : ''}</p>
                   </div>
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-3 text-center">
                     <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Avg pain on rest days</p>
                     <p className={`text-2xl font-extrabold ${correlationInsight.restPain != null ? 'text-rose-500' : 'text-gray-300'}`}>
-                      {correlationInsight.restPain != null ? `${correlationInsight.restPain}/10` : '—'}
+                      {correlationInsight.restPain != null ? `${correlationInsight.restPain}/10` : 'N/A'}
                     </p>
                     <p className="text-[11px] text-gray-400 mt-0.5">{correlationInsight.restDayCount} day{correlationInsight.restDayCount !== 1 ? 's' : ''}</p>
                   </div>
